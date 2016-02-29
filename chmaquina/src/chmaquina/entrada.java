@@ -1,0 +1,1406 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package chmaquina;
+
+
+import java.awt.Desktop;
+import java.io.File;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
+
+
+
+/**
+ *
+ * @author aguir
+ */
+public class entrada extends JFrame {
+
+    /**
+     * Creates new form entrada
+     */
+    DefaultTableModel modelo,tprocesos,tvariables, tetiquetas;
+    String arc = "documentacion.pdf";
+    int programa=1; // cantidad de programas cargados
+    String memoriaprin[]; // vector de memoria principal
+    public static ArrayList<String> instrucciones;
+    public static ArrayList<String> nvariables;
+    public static ArrayList<Object[]> var;
+    public static ArrayList<Object[]> etiq;
+    
+    int pivote=0;
+    int rlp;
+    int inicialproceso=0, inicialvariables=0,inicialetiquetas=0;
+    
+    
+    
+    public entrada() {
+        initComponents();
+        instrucciones=new ArrayList();
+        nvariables=new ArrayList();
+         var=new ArrayList();
+         etiq=new ArrayList();
+        setLocationRelativeTo(null);
+        setResizable(true);                          // permite que la ventana principal se pueda maximizar o minimizar
+        setExtendedState(JFrame.MAXIMIZED_BOTH);    // hace que la ventana siempre aparesca maximizada
+        setTitle("MI CH-MAQUINA");                   // titulo  del programa
+        setIconImage(new ImageIcon(getClass().getResource("/imagenes/icono.png")).getImage());// icono d ela ventana del programa
+        cargarprograma.setEnabled(false);// impide cargar programas sin prender maquina
+        // inpide apagar la maquina sin encenderla
+        apagarmaquina1.setEnabled(false);
+        apagarmaquina2.setEnabled(false);
+        
+        
+        //fundamento encargado de la imagen de fondo del ch-maquina
+        ((JPanel)getContentPane()).setOpaque(false); 
+        ImageIcon uno=new ImageIcon(this.getClass().getResource("/imagenes/fon.jpg"));
+        JLabel fondo= new JLabel(); 
+        fondo.setIcon(uno); 
+        getLayeredPane().add(fondo,JLayeredPane.FRAME_CONTENT_LAYER);
+        fondo.setBounds(0,0,uno.getIconWidth(),uno.getIconHeight());
+        
+        
+        
+        
+        //definenlos valores por defecto de la memoria del kernel y la memoria disponible para programas
+        int maxmemo=9999, maxkerner=1000;
+        memoria.setModel(new javax.swing.SpinnerNumberModel(100, 2, maxmemo, 1));
+        kernel.setModel(new javax.swing.SpinnerNumberModel(29, 1, maxkerner, 1));
+        total_memoria.setText("71");
+       
+        
+        //CREA EL TIPO DE MODELO DE TABLA para mapa de memoria
+        modelo = new DefaultTableModel();
+        tabla.setModel(modelo);
+        // CREAN LOS NOMBRES DE LAS COLUMNAS
+        modelo.addColumn("POS-MEMO");
+        modelo.addColumn("INSTRUCCIONES");
+        //redimenciona la columna
+        TableColumn columna = tabla.getColumn("POS-MEMO");
+        columna.setPreferredWidth(80);// pixeles por defecto
+        columna.setMinWidth(50);//pixeles minimo
+        columna.setMaxWidth(90);// pixeles maximo
+        
+        //CREA EL TIPO DE MODELO DE TABLA para procesos
+        tprocesos = new DefaultTableModel();
+        tabla2.setModel(tprocesos);
+        // CREAN LOS NOMBRES DE LAS COLUMNAS
+        tprocesos.addColumn("ID");
+        tprocesos.addColumn("PROGRAMAS");
+        tprocesos.addColumn("#INST");
+        tprocesos.addColumn("RB");
+        tprocesos.addColumn("RLC");
+        tprocesos.addColumn("RLP");
+        
+        //redimenciona la columna
+        TableColumn id = tabla2.getColumn("ID");
+        id.setPreferredWidth(40);// pixeles por defecto
+        id.setMinWidth(10);//pixeles minimo
+        id.setMaxWidth(41);// pixeles maximo
+        
+        TableColumn pro = tabla2.getColumn("PROGRAMAS");
+        pro.setPreferredWidth(100);// pixeles por defecto
+        pro.setMinWidth(10);//pixeles minimo
+        pro.setMaxWidth(501);// pixeles maximo
+        
+        TableColumn ins = tabla2.getColumn("#INST");
+        ins.setPreferredWidth(50);// pixeles por defecto
+        ins.setMinWidth(10);//pixeles minimo
+        ins.setMaxWidth(51);// pixeles maximo
+        
+        TableColumn rb = tabla2.getColumn("RB");
+        rb.setPreferredWidth(40);// pixeles por defecto
+        rb.setMinWidth(10);//pixeles minimo
+        rb.setMaxWidth(41);// pixeles maximo
+        
+        TableColumn rcl = tabla2.getColumn("RLC");
+        rcl.setPreferredWidth(40);// pixeles por defecto
+        rcl.setMinWidth(10);//pixeles minimo
+        rcl.setMaxWidth(41);// pixeles maximo
+        
+        TableColumn rlp = tabla2.getColumn("RLP");
+        rlp.setPreferredWidth(40);// pixeles por defecto
+        rlp.setMinWidth(10);//pixeles minimo
+        rlp.setMaxWidth(41);// pixeles maximo
+        
+        
+        //CREA EL TIPO DE MODELO DE TABLA para variables
+        tvariables = new DefaultTableModel();
+        tablavariables.setModel(tvariables);
+        // CREAN LOS NOMBRES DE LAS COLUMNAS
+        tvariables.addColumn("POS");
+        tvariables.addColumn("PROG");
+        tvariables.addColumn("TIPO");
+        tvariables.addColumn("VARIABLES");
+        tvariables.addColumn("VALOR");
+        
+        //redimenciona la columna
+        TableColumn POS = tablavariables.getColumn("POS");
+        POS.setPreferredWidth(40);// pixeles por defecto
+        POS.setMinWidth(40);//pixeles minimo
+        POS.setMaxWidth(41);// pixeles maximo
+        
+        TableColumn prog = tablavariables.getColumn("PROG");
+        prog.setPreferredWidth(60);// pixeles por defecto
+        prog.setMinWidth(10);//pixeles minimo
+        prog.setMaxWidth(61);// pixeles maximo
+        
+        
+        
+        TableColumn vLr = tablavariables.getColumn("VALOR");
+        vLr.setPreferredWidth(60);// pixeles por defecto
+        vLr.setMinWidth(10);//pixeles minimo
+        vLr.setMaxWidth(61);// pixeles maximo
+        
+        
+        //CREA EL TIPO DE MODELO DE TABLA para etiquetas
+        tetiquetas = new DefaultTableModel();
+        tablaetiquetas.setModel(tetiquetas);
+        // CREAN LOS NOMBRES DE LAS COLUMNAS
+        tetiquetas.addColumn("POS");
+        tetiquetas.addColumn("PROG");
+        tetiquetas.addColumn("ETIQUETAS");
+        //redimenciona la columna
+        TableColumn POSS = tablaetiquetas.getColumn("POS");
+        POSS.setPreferredWidth(50);// pixeles por defecto
+        POSS.setMinWidth(40);//pixeles minimo
+        POSS.setMaxWidth(90);// pixeles maximo
+        
+        TableColumn POG = tablaetiquetas.getColumn("PROG");
+        POG.setPreferredWidth(50);// pixeles por defecto
+        POG.setMinWidth(40);//pixeles minimo
+        POG.setMaxWidth(90);// pixeles maximo
+              
+        // evita editar el contenido de los jtextpanel
+        monitor.setEditable(false);
+        impresora.setEditable(false);
+         
+    }
+    
+    
+    
+    
+    //funcion encargada de capturar los valores  de kernel y memoria  y mostrar la cantidad de 
+    //memoria que queda disponible para  la asignacion de los programas
+    public void memtotal(){
+        int mem = (int) memoria.getValue();
+        int ker = (int) kernel.getValue();
+        int total= mem - ker;
+        total_memoria.setText(String.valueOf(total));
+        
+    }
+    
+    
+   // funcion  para reproducier sonidos 
+   public Clip clip;
+   public String ruta="/audio/";
+   
+           
+  public void son(String archivo){
+      BufferedInputStream Mystream = new BufferedInputStream(getClass().getResourceAsStream(ruta+archivo+".wav")); 
+    
+      try{
+           AudioInputStream song = AudioSystem.getAudioInputStream(Mystream); 
+           Clip sonido = AudioSystem.getClip(); 
+           sonido.open(song); 
+           sonido.start();
+       }catch(Exception e){
+           
+       }
+  }  
+  
+  
+  // funcion enargada de encender la maquina y cargar la memoria
+  public void encender(){
+       // HACE EL LLAMADO A LA FUNCION PARA QUE REPRODUSCA EL SONIDO DE ENSENDIDO
+        // desactiva los spinner
+        kernel.setEnabled(false);
+        memoria.setEnabled(false);
+        encender.setEnabled(false);
+        encender2.setEnabled(false);
+        cargarprograma.setEnabled(true);
+        apagarmaquina1.setEnabled(true);
+        apagarmaquina2.setEnabled(true);
+          //sonidoencender("inicio");
+        son("inicio");
+        rlp = (int)kernel.getValue()+1; // inicualiza el primer rcl
+        
+        // INSTANCIA OBJETO PARA LLENAR  LA TABLA
+        Object []object = new Object[2];
+        
+        
+        memoriaprin= new String[(int)memoria.getValue()];// inicializa  la memoria principal con el tamaño de memoria establecido
+        // VALORES POR DEFECTO DE LA PRIMERA POSICION DEL MAPA D EMEMORIA
+        object[0]="0";
+        object[1]="acumulador";
+        memoriaprin[0]="acumulador";// carga en la memoria  
+        modelo.addRow(object);
+     
+      // CICLOS ENCARGADOS DE LLENAR  EL MAPA DE MEMORIA
+     int contador = 0;
+     
+     int mem = Integer.parseInt(total_memoria.getText());
+     int ker = (int) kernel.getValue();
+        for (int i = 0; i < ker; i++) {
+            contador++;
+            object[0]=String.valueOf(contador);
+            object[1]="-----sistema operativo-----";
+            modelo.addRow(object);
+            memoriaprin[i+1]="-----sistema operativo-----";
+        }
+        
+        pivote = pivote + ker +1; // crea un pivote marcador de inicio de primer programa
+        for (int i = 0; i <mem-1; i++) {
+            contador++;
+            object[0]=String.valueOf(contador);
+            object[1]="";
+            modelo.addRow(object);
+        }
+        
+        
+        // se encarga de  crear el contenido de un programa en la tabla de procesos 
+           Object []objectprocesos = new Object[6];
+           objectprocesos[0]="0000";// # instancias
+           objectprocesos[1]="SISTEMA OPERATIVO ch-maquina"; // nombre del programa
+           objectprocesos[2]=ker; // numero  de lineas del programa
+           objectprocesos[3]=1; // rb
+           objectprocesos[4]=ker; //registro limite de el programa
+           objectprocesos[5]=ker+1 ; // crea el rlp
+           tprocesos.addRow(objectprocesos);// adiciona a la tabla
+           
+  }
+  
+  // se encarga de borrar los archivos temporales
+  public void temporales(){
+      
+      File temp = new File(arc);
+        temp.delete();
+  }
+  
+  // funcion encargada de apagar la maquina y regresarla  asu estado  inicial
+  public void apagar(){
+      // codigo encargado de apagar la maquina y regresarla a el estado inicial
+    temporales();// borra los archivos temporales
+    
+  if(JOptionPane.showOptionDialog(this, "¿ESTA SEGURO QUE DESEA APAGAR LA MAQUINA?", "Mensaje de Alerta",
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{" SI "," NO "},"NO")==0)
+{
+       son("cierre");
+       // se encarga de  detener un instante el proceso
+        try {
+            Thread.sleep(2000);// el tiempo es en milisegundos
+        } catch (InterruptedException ex) {
+
+        }
+       setVisible(false);
+       new entrada().setVisible(true);
+}
+else
+{
+       JOptionPane.showMessageDialog(this, "PUEDE CONTINUAR CON LA EJECUCION DEL PROGRAMA");
+}
+  
+  
+  
+  }
+  
+  
+  // funcion encargada de leer el archivo y hacer el token
+  public void actualizar(String url, String pre,String nombre){
+       int lexa =0;
+        try{
+                       
+            instrucciones.clear();
+            nvariables.clear();
+            // limpia los arreglos para que no queden rastros del programa anterior
+          etiq.clear();
+          var.clear();
+            
+            
+            
+            // leee el archivo y lo carga en bufer
+            FileReader file = new FileReader(url);
+            BufferedReader leer = new BufferedReader(file);
+            
+            //Inicializo todas las variables a leer
+            //de forma general
+            
+            String operacion="";// alamcena el primer token  de la linea examinada
+            
+            String variablenueva="", tipo="", valor="";
+            String variablealmacene="";
+            String nombreetiqueta="", numerolinea="";
+            String variablecargue="";
+           
+            
+            // variables  para calculos matematicos
+            String variablesume="";
+            String variablereste="";
+            String variablemultiplique="";
+            String variabledivida="";
+            String variablepotencia="";
+            String variablemodulo="";
+            String variableconcatene="";
+            
+            // ciclos
+            String etiquetaini="";
+            String etiquetainicio="", etiquetafin="";
+            
+            // entrega de resultados
+            String variablemuestre="";
+            String variableimprimir="";
+            
+            
+            //operaciones con cadenas
+            String variablelea="";
+            String numeroextraer="";
+            
+            // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
+            String  errores= "**** ERRORES ENCONTRADOS ****\n\n";
+           
+            
+            // SE ENCARGA DE RECORRER EL ARCHIVO Y CONTAR LA CANTIDAD DE LINEAS
+            long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
+            String sCadena;
+            // CICLO QUE RECORRE CADA LINEA  HASTA QUE LA LINEA SEA NULL
+            while ((sCadena = leer.readLine())!=null) {
+            lNumeroLineas++;
+            }
+            
+           
+           
+           
+            FileReader file2 = new FileReader(url);
+            BufferedReader leer2 = new BufferedReader(file2);
+          
+            
+            int inicialmemoria=pivote;
+            int inicialprocesos= inicialproceso;
+            int inicialvariable=inicialvariables; 
+            int inicialetiqueta=inicialetiquetas;
+            
+            int posi=pivote-1; // nos dice en que pisision va almacenando instrucciones
+            
+            
+            // captura la cantidad de filas ocupadas de la tabla d evariables
+            int q=tvariables.getRowCount();
+            // FOR ENCARGADO DE RECORRER  EL ARCHIVO LINEA POR LINEA PARA HACER LOS TOKENS
+            for (int i=0; i<lNumeroLineas; i++){
+                //Se usa 'StringTokenizer' para tomar toda la linea  examinada
+                posi++; // aumenta en uno  las posiciones d ememoria para ocupar
+                String linea=leer2.readLine();
+                
+                lexa++;
+                StringTokenizer tk = new StringTokenizer(linea);
+                
+                operacion= (tk.nextToken());
+                //concatena  el id de el programa  mas la linea del plrograma para ser mostrada en el mapa de memoria
+                linea=pre+"--"+linea;
+                // evalua por casos  cada linea y hace los tokens  correspondientes
+                
+                 switch (operacion) {
+                        case "cargue":
+                            if (tk.countTokens()==1) {
+                                 // hace el segundo token de la linea
+                            variablecargue= (tk.nextToken());
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);// guarda en la tabla  de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                            }else{
+                                errores=errores+"debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "almacene":
+                            // hace el segundo token de la linea
+                            variablealmacene= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                            
+                        case "vaya":
+                            // hace el segundo token de la linea
+                            etiquetaini= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                        
+                        case "vayasi":
+                            // hace el segundo token de la linea
+                            etiquetainicio= (tk.nextToken());
+                            etiquetafin=(tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;   
+                            
+                        case "nueva":
+                            if (tk.countTokens()>=3 || tk.countTokens()==4) {
+                               inicialvariables++;
+                            // hace el segundo token de la linea
+                            variablenueva= (tk.nextToken());
+                            tipo=(tk.nextToken());
+                            valor= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            
+                            Object nuevo[]=new Object[5];
+                            nuevo[0]="";
+                            nuevo[1]=pre;
+                            nuevo[3]=variablenueva;
+                            switch (tipo){
+                                case "i":
+                                case "I":
+                                    tipo="ENTERO";
+                                    break;
+                                
+                                case "r":
+                                case "R":
+                                    tipo="REAL";
+                                    break;
+                                            
+                                case "c":
+                                case "C":
+                                    tipo="CADENA";
+                                    break;
+                                default:
+                                    errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
+                                                    "parece error en el tipo de variable";
+                                    
+                                    
+                            }
+                            nuevo[2]=tipo;
+                            nuevo[4]=valor;
+                            var.add(nuevo); // almacena en laun array list para luego pasarlo a la  tabla variables 
+                            
+                            nvariables.add(variablenueva+"="+valor) ;
+                            break; 
+                            }else{
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "etiqueta":
+                             // hace el segundo token de la linea
+                            nombreetiqueta =(tk.nextToken());
+                            numerolinea=(tk.nextToken());
+                            
+                            
+                            inicialetiquetas++;
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1); // adiciona la linea a el mapa de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            
+                            Object netiqueta[]=new Object[3];
+                            
+                            // carga de nuevo el documento para recorrerlo de nuevo y encontrar la linea a etiquetar
+                            FileReader file3 = new FileReader(url);
+                            BufferedReader leer3 = new BufferedReader(file3);
+                            String eti="";
+                            int j;
+                            // recorre el documento hasta la linea requerida 
+                            for ( j = 0; j < Integer.parseInt(numerolinea); j++) {
+                                eti=leer3.readLine();
+                            }
+                            
+                            netiqueta[0]=pivote+j-3;//posicion en memoria
+                            netiqueta[1]=pre; //programa al q pertenece
+                            netiqueta[2]=nombreetiqueta+" = "+eti; // nombre etiqueta mas la linea renombrada
+                            etiq.add(netiqueta); // adiciona el arreglo a la tabla etiquetas
+                            break;
+                        
+                        case "lea":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                        
+                        case "sume":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "reste":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "multiplique":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                         
+                        case "divida":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "potencia":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "modulo":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "concatene":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "elimine":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                        
+                        case "extraiga":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "muestre":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "imprima":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "retorne":
+                            //agrega la linea completa al mapa de memoria
+                            
+                            modelo.setValueAt(linea, posi, 1);
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "//":
+                            System.out.println("entro");
+                            posi--;
+                            break;
+                            
+                          default:
+                              // borra el ultimo programa cargado de la memoria 
+                              System.out.println("iniciql " +inicialmemoria);
+                              for (int h = inicialmemoria; h < (int)memoria.getValue(); h++) {
+                                  modelo.setValueAt("", h, 1);
+                                  memoriaprin[h]="";
+                              }
+                              // hace el llamado a la exeption si algo esta mal en el archivo
+                              throw new Exception("Invalid entry");
+                              
+                            
+                           
+                 }
+                
+             
+            }
+            
+             // carga si no hay problema las variables a la tabla variables
+            for (int b = 0; b < var.size(); b++) {
+                
+                tvariables.addRow(var.get(b));
+                
+            }
+            
+            // ciclo que le asigna el valor de la posicion de memoria donde esta
+            //hubicado  y lo muetra en tabla de variables
+            int tempoposi=posi;
+            // toma el valor  de las variables del nuevo archivo mas las filas ocupadas de la tabla
+            int lim=nvariables.size()+q;
+            for ( int r=q; r < lim; r++) {
+                tempoposi++;
+                // le da el valor de la posicion  de la variable en la memoria a  la tabala d evariables
+                tvariables.setValueAt(tempoposi, r, 0);
+            }
+            
+            
+            //concatena el prefijo con la instruccion en el mapa de memoria las variables defidas
+            for (int a = 0; a < nvariables.size(); a++) {
+                posi++;
+                // agrega toda la instruccion a la memoria 
+                modelo.setValueAt(pre+"--"+nvariables.get(a), posi, 1);
+                memoriaprin[posi]=nvariables.get(a); // guarda en el vector principal de memoria
+                
+                
+            }
+            
+           
+            
+            for (int c = 0; c < etiq.size(); c++) {
+                tetiquetas.addRow(etiq.get(c));
+            }
+          
+       // se encarga de  crear el contenido de un programa en la tabla de procesos
+           Object []objectprocesos = new Object[6];
+           objectprocesos[0]=pre;// # instancias
+           objectprocesos[1]=nombre; // nombre del programa
+           objectprocesos[2]=lNumeroLineas; // numero  de lineas del programa
+           objectprocesos[3]=pivote; // rb
+           pivote=posi+1;// crea el nuevo pivote
+           objectprocesos[4]=posi; //registro limite de el programa
+           objectprocesos[5]=pivote ; // crea el rlp
+           tprocesos.addRow(objectprocesos);// adiciona a la tabla 
+           
+           
+           
+      }catch(Exception e){
+          // retrocede el ide del programa en 1  pues el programa que lo ocupava no se cargo
+          programa--;
+          
+            //Messaje que se muestra cuando hay error dentro del 'try'
+            JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
+                    + "en la linea "+lexa+" es posible que uno de los datos del archivo \nno coincida con el formato");
+        
+      }
+        
+        
+  }
+  
+   
+   
+    
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // componentes  de la interfaz del ch-maquina
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel4 = new javax.swing.JLabel();
+        memoria = new javax.swing.JSpinner();
+        kernel = new javax.swing.JSpinner();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        total_memoria = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        monitor = new javax.swing.JTextPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        impresora = new javax.swing.JTextPane();
+        encender = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tabla = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        apagarmaquina1 = new javax.swing.JToggleButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tabla2 = new javax.swing.JTable();
+        jLabel5 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tablaetiquetas = new javax.swing.JTable();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tablavariables = new javax.swing.JTable();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        archivo = new javax.swing.JMenu();
+        encender2 = new javax.swing.JMenuItem();
+        cargarprograma = new javax.swing.JMenuItem();
+        apagarmaquina2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        encender3 = new javax.swing.JMenuItem();
+        encender4 = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        jMenu7 = new javax.swing.JMenu();
+        documentacion = new javax.swing.JMenuItem();
+        acercade = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel4.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("total memoria a utilizar");
+
+        memoria.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        memoria.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                memoriaStateChanged(evt);
+            }
+        });
+
+        kernel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        kernel.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                kernelStateChanged(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel1.setText("KERNEL");
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel3.setText("MEMORIA");
+
+        total_memoria.setBackground(new java.awt.Color(255, 255, 255));
+        total_memoria.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        total_memoria.setForeground(new java.awt.Color(255, 255, 255));
+        total_memoria.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                total_memoriaAncestorAdded(evt);
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        jScrollPane1.setViewportView(monitor);
+
+        jScrollPane2.setViewportView(impresora);
+
+        encender.setText("ENCENDER MAQUINA");
+        encender.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                encenderMouseClicked(evt);
+            }
+        });
+        encender.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encenderActionPerformed(evt);
+            }
+        });
+
+        tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tabla.setEnabled(false);
+        jScrollPane3.setViewportView(tabla);
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel2.setText("MAPA DE MEMORIA");
+
+        apagarmaquina1.setText("APAGAR MAQUINA");
+        apagarmaquina1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                apagarmaquina1ActionPerformed(evt);
+            }
+        });
+
+        tabla2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Título 5", "Título 6"
+            }
+        ));
+        jScrollPane4.setViewportView(tabla2);
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel5.setText("tabla de procesos");
+
+        tablaetiquetas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Título 3"
+            }
+        ));
+        jScrollPane5.setViewportView(tablaetiquetas);
+
+        tablavariables.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "null", "Título 4", "null"
+            }
+        ));
+        jScrollPane6.setViewportView(tablavariables);
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel6.setText("tabla de etiquetas");
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel7.setText("tabla de variables");
+
+        archivo.setText("ARCHIVO");
+        archivo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                archivoMouseClicked(evt);
+            }
+        });
+
+        encender2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.CTRL_MASK));
+        encender2.setText("ENCENDER MAQUINA");
+        encender2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encender2ActionPerformed(evt);
+            }
+        });
+        archivo.add(encender2);
+
+        cargarprograma.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        cargarprograma.setText("CARGAR PROGRAMA");
+        cargarprograma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarprogramaActionPerformed(evt);
+            }
+        });
+        archivo.add(cargarprograma);
+
+        apagarmaquina2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        apagarmaquina2.setText("APAGAR MAQUINA");
+        apagarmaquina2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                apagarmaquina2ActionPerformed(evt);
+            }
+        });
+        archivo.add(apagarmaquina2);
+
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        jMenuItem3.setText("CERRAR");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        archivo.add(jMenuItem3);
+
+        jMenuBar1.add(archivo);
+
+        jMenu3.setText("EJECUTAR");
+
+        encender3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        encender3.setText("RECORRIDO");
+        encender3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encender3ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(encender3);
+
+        encender4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        encender4.setText("PASO A PASO");
+        encender4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encender4ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(encender4);
+
+        jMenuBar1.add(jMenu3);
+
+        jMenu6.setText("PAUSA");
+        jMenuBar1.add(jMenu6);
+
+        jMenu7.setText("AYUDA");
+        jMenu7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu7ActionPerformed(evt);
+            }
+        });
+
+        documentacion.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        documentacion.setText("DOCUMENTACION");
+        documentacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                documentacionActionPerformed(evt);
+            }
+        });
+        jMenu7.add(documentacion);
+
+        acercade.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
+        acercade.setText("ACERCA DE");
+        acercade.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acercadeActionPerformed(evt);
+            }
+        });
+        jMenu7.add(acercade);
+
+        jMenuBar1.add(jMenu7);
+
+        jMenu5.setText("IMPRIMIR");
+        jMenuBar1.add(jMenu5);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(62, 62, 62)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(100, 100, 100)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel1))
+                                .addGap(97, 97, 97)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel2)
+                .addGap(82, 82, 82))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addGap(197, 197, 197)
+                        .addComponent(jLabel7)
+                        .addGap(129, 129, 129))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(jLabel6))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(49, 49, 49)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel1)
+                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(encender)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(apagarmaquina1)))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
+                .addGap(248, 248, 248))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void cargarprogramaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarprogramaActionPerformed
+        // TODO add your handling code here:
+        // encargado de abrir el panel de busqueda de archivos y cargarlo a la funcion actualizar.
+        JFileChooser ventana = new JFileChooser();
+        // filtra las extenciones segun la que buscamos
+        ventana.setFileFilter(new FileNameExtensionFilter("todos los archivos "
+                                                  + "*.ch", "CH","ch"));
+        int sel = ventana.showOpenDialog(entrada.this);
+        
+        // incrementan en uno el contador 
+        inicialproceso++;
+        
+        
+        // condicional que le dara el nombre a el programa
+        String prefijo;
+        if (programa<10) {
+             prefijo="000"+String.valueOf(programa);
+            programa++;
+        }else{
+             prefijo="00"+String.valueOf(programa);
+        }
+        
+        if (sel == JFileChooser.APPROVE_OPTION) {
+
+            File file = ventana.getSelectedFile();
+            
+            String nombrea=file.getName();
+            actualizar(file.getPath(), prefijo,nombrea );
+
+        }
+    }//GEN-LAST:event_cargarprogramaActionPerformed
+
+    private void total_memoriaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_total_memoriaAncestorAdded
+        // TODO add your handling code here:
+      
+    }//GEN-LAST:event_total_memoriaAncestorAdded
+
+    
+    private void memoriaStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_memoriaStateChanged
+        // TODO add your handling code here:
+        // en caso tal de que el kernel supere  el tamaño de la memoria la memoria se modificara  en 1 mas que el kernel
+        int kertemp = (int) kernel.getValue();
+        int memtemp = (int) memoria.getValue();
+        if (kertemp >= memtemp) {
+            memtemp=kertemp+1;
+            memoria.setValue(memtemp);
+        }
+        //muestra la memoria disponible para los programas
+        memtotal();
+    }//GEN-LAST:event_memoriaStateChanged
+
+    private void kernelStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_kernelStateChanged
+        // en caso tal de que el kernel supere  el tamaño de la memoria la memoria se modificara  en 1 mas que el kernel
+        int kertemp = (int) kernel.getValue();
+        int memtemp = (int) memoria.getValue();
+        if (memtemp <= kertemp) {
+            kertemp=memtemp-1;
+            kernel.setValue(kertemp);
+        }
+        //muestra la memoria disponible para los programas
+        memtotal();
+        
+    }//GEN-LAST:event_kernelStateChanged
+
+    private void encenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encenderActionPerformed
+       // HACE EL LLAMADO A LA FUNCION PARA QUE REPRODUSCA EL SONIDO DE ENSENDIDO
+        encender();
+        
+        
+    }//GEN-LAST:event_encenderActionPerformed
+
+    private void encenderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_encenderMouseClicked
+        // TODO add your handling code here:
+   
+    }//GEN-LAST:event_encenderMouseClicked
+
+    private void archivoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_archivoMouseClicked
+        // TODO add your handling code here:
+       
+       
+    }//GEN-LAST:event_archivoMouseClicked
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        
+        // codigo encargado de CERRAR EL PROGRAMA
+        
+        temporales();// borra los temporales
+  if(JOptionPane.showOptionDialog(this, "¿ESTA SEGURO QUE DESEA SALIR DEL PROGRAMA?", "Mensaje de Alerta", 
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{" SI "," NO "},"NO")==0)
+    {
+        son("cierre");
+        
+        // se encarga de  detener un instante el proceso
+        try {
+            Thread.sleep(3000);// el tiempo es en milisegundos
+        } catch (InterruptedException ex) {
+
+        }
+        System.exit(0);
+    }
+  
+else
+{
+       JOptionPane.showMessageDialog(this, "PUEDE CONTINUAR CON LA EJECUCION DEL PROGRAMA");
+}
+        
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void apagarmaquina2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apagarmaquina2ActionPerformed
+        // TODO add your handling code here:
+        
+        //llama la funcion encargada de apagar la maquina
+        apagar();
+        
+        
+        
+    }//GEN-LAST:event_apagarmaquina2ActionPerformed
+
+    private void encender2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender2ActionPerformed
+       // HACE EL LLAMADO A LA FUNCION PARA QUE REPRODUSCA EL SONIDO DE ENSENDIDO
+        encender();
+    }//GEN-LAST:event_encender2ActionPerformed
+
+    private void apagarmaquina1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apagarmaquina1ActionPerformed
+        // TODO add your handling code hermie:
+         //llama la funcion encargada de apagar la maquina
+        apagar();
+    }//GEN-LAST:event_apagarmaquina1ActionPerformed
+
+    private void jMenu7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu7ActionPerformed
+
+    private void acercadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acercadeActionPerformed
+        // TODO add your handling code here
+        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.1.0.0\n" +
+                "Actualizaciones: en proceso...\n" +
+                "Java: 1.7.0_51; Java HotSpot(TM) 64-Bit Server VM 24.51-b03\n" +
+                "Runtime: Java(TM) SE Runtime Environment 1.7.0_51-b13\n" +
+                "System recomendado: Windows 7 y posterior\n" +
+                "creado por :YEISON AGUIRRE OSORIO -- NAUFRAGO\n" +
+                "UNIVERSIDAD DE COLOMBIA - SEDE MANIZALES\n"
+                + "fecha creacion:febrero 2016\n\n"
+                + "simulador de OS encargado de leer instrucciones  de un archivo con \n"
+                + "extencion .CH en este estan los pasos y valores iniciales que el \n"
+                + "simulador debe interpretar y ejecutar, lo puede hacer de modo recorrido o \n"
+                + "paso a paso, durante la ejecucion se ve el mapa de memoria y que hay \n"
+                + "almacenado en ella ademas de el cuador de procesos activos y variables declaradas,\n"
+                + "los resultados del proceso pueden visualizarcen en monitor e impresion.", "ACERCA DE MI CH-MAQUINA.", 
+        JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
+    }//GEN-LAST:event_acercadeActionPerformed
+
+    private void encender3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_encender3ActionPerformed
+
+    private void encender4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_encender4ActionPerformed
+
+    private void documentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_documentacionActionPerformed
+        // TODO add your handling code here:
+        // carga  el documento  que contiene la documentacion 
+           
+        try{
+            
+            //copias la direccion
+            
+            //nuevo archivo en esa direccion
+            File temp = new File(arc);
+            InputStream is = this.getClass().getResourceAsStream("/documentacion/documentacion.pdf");
+            FileOutputStream archivoDestino = new FileOutputStream(temp);
+            //FileWriter fw = new FileWriter(temp);
+            byte[] buffer = new byte[1024*1024];
+            //lees el archivo hasta que se acabe...
+            int nbLectura;
+            while ((nbLectura = is.read(buffer)) != -1)
+                archivoDestino.write(buffer, 0, nbLectura);
+            //cierras el archivo,el inputS y el FileW
+            //fw.close();
+            archivoDestino.close();
+            is.close();
+            //abres el archivo temporal
+            Desktop.getDesktop().open(temp);
+            
+        } catch (IOException ex) {
+            System.out.println("Problema abriendo el pdf de erfc");
+        }
+
+        
+        
+    }//GEN-LAST:event_documentacionActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(entrada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(entrada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(entrada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(entrada.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+         
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            
+            public void run() {
+                new entrada().setVisible(true);
+               
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem acercade;
+    private javax.swing.JToggleButton apagarmaquina1;
+    private javax.swing.JMenuItem apagarmaquina2;
+    private javax.swing.JMenu archivo;
+    private javax.swing.JMenuItem cargarprograma;
+    private javax.swing.JMenuItem documentacion;
+    private javax.swing.JButton encender;
+    private javax.swing.JMenuItem encender2;
+    private javax.swing.JMenuItem encender3;
+    private javax.swing.JMenuItem encender4;
+    private javax.swing.JTextPane impresora;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
+    private javax.swing.JMenu jMenu7;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JSpinner kernel;
+    private javax.swing.JSpinner memoria;
+    private javax.swing.JTextPane monitor;
+    private javax.swing.JTable tabla;
+    private javax.swing.JTable tabla2;
+    private javax.swing.JTable tablaetiquetas;
+    private javax.swing.JTable tablavariables;
+    private javax.swing.JLabel total_memoria;
+    // End of variables declaration//GEN-END:variables
+}

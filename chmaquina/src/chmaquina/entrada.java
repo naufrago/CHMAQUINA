@@ -65,14 +65,15 @@ public class entrada extends JFrame {
         setTitle("MI CH-MAQUINA");                   // titulo  del programa
         setIconImage(new ImageIcon(getClass().getResource("/imagenes/icono.png")).getImage());// icono d ela ventana del programa
         cargarprograma.setEnabled(false);// impide cargar programas sin prender maquina
-        // inpide apagar la maquina sin encenderla
+        // impide apagar la maquina sin encenderla
         apagarmaquina1.setEnabled(false);
         apagarmaquina2.setEnabled(false);
+        botoncargar.setEnabled(false);
         
         
         //fundamento encargado de la imagen de fondo del ch-maquina
         ((JPanel)getContentPane()).setOpaque(false); 
-        ImageIcon uno=new ImageIcon(this.getClass().getResource("/imagenes/fon.jpg"));
+        ImageIcon uno=new ImageIcon(this.getClass().getResource("/imagenes/fon1.jpg"));
         JLabel fondo= new JLabel(); 
         fondo.setIcon(uno); 
         getLayeredPane().add(fondo,JLayeredPane.FRAME_CONTENT_LAYER);
@@ -93,12 +94,30 @@ public class entrada extends JFrame {
         tabla.setModel(modelo);
         // CREAN LOS NOMBRES DE LAS COLUMNAS
         modelo.addColumn("POS-MEMO");
-        modelo.addColumn("INSTRUCCIONES");
+        modelo.addColumn("PROGRAMA");
+        modelo.addColumn("INSTRUCCION");
+        modelo.addColumn("ARGUMENTO");
+        modelo.addColumn("VALOR");
         //redimenciona la columna
         TableColumn columna = tabla.getColumn("POS-MEMO");
         columna.setPreferredWidth(80);// pixeles por defecto
         columna.setMinWidth(50);//pixeles minimo
         columna.setMaxWidth(90);// pixeles maximo
+        
+        TableColumn PRE = tabla.getColumn("PROGRAMA");
+        PRE.setPreferredWidth(80);// pixeles por defecto
+        PRE.setMinWidth(10);//pixeles minimo
+        PRE.setMaxWidth(200);// pixeles maximo
+        
+        TableColumn PREE = tabla.getColumn("INSTRUCCION");
+        PREE.setPreferredWidth(120);// pixeles por defecto
+        PREE.setMinWidth(10);//pixeles minimo
+        PREE.setMaxWidth(200);// pixeles maximo
+        
+        TableColumn PREEE = tabla.getColumn("VALOR");
+        PREEE.setPreferredWidth(80);// pixeles por defecto
+        PREEE.setMinWidth(10);//pixeles minimo
+        PREEE.setMaxWidth(200);// pixeles maximo
         
         //CREA EL TIPO DE MODELO DE TABLA para procesos
         tprocesos = new DefaultTableModel();
@@ -240,18 +259,24 @@ public class entrada extends JFrame {
         cargarprograma.setEnabled(true);
         apagarmaquina1.setEnabled(true);
         apagarmaquina2.setEnabled(true);
+        botoncargar.setEnabled(true);
+        estado.setText("MODO KEREL");
+        
           //sonidoencender("inicio");
         son("inicio");
         rlp = (int)kernel.getValue()+1; // inicualiza el primer rcl
         
         // INSTANCIA OBJETO PARA LLENAR  LA TABLA
-        Object []object = new Object[2];
+        Object []object = new Object[5];
         
         
         memoriaprin= new String[(int)memoria.getValue()];// inicializa  la memoria principal con el tamaño de memoria establecido
         // VALORES POR DEFECTO DE LA PRIMERA POSICION DEL MAPA D EMEMORIA
         object[0]="0";
-        object[1]="acumulador";
+        object[1]="0000";
+        object[2]="----";
+        object[3]="acumulador";
+        object[4]="0";
         memoriaprin[0]="acumulador";// carga en la memoria  
         modelo.addRow(object);
      
@@ -263,7 +288,10 @@ public class entrada extends JFrame {
         for (int i = 0; i < ker; i++) {
             contador++;
             object[0]=String.valueOf(contador);
-            object[1]="-----sistema operativo-----";
+            object[1]="0000";
+            object[2]="----";
+            object[3]="-----sistema operativo-----";
+            object[4]="----";
             modelo.addRow(object);
             memoriaprin[i+1]="-----sistema operativo-----";
         }
@@ -273,6 +301,9 @@ public class entrada extends JFrame {
             contador++;
             object[0]=String.valueOf(contador);
             object[1]="";
+            object[2]="";
+            object[3]="";
+            object[4]="";
             modelo.addRow(object);
         }
         
@@ -322,11 +353,42 @@ else
   
   
   }
+  public void cargararchivo(){
+      // encargado de abrir el panel de busqueda de archivos y cargarlo a la funcion actualizar.
+        JFileChooser ventana = new JFileChooser();
+        // filtra las extenciones segun la que buscamos
+        ventana.setFileFilter(new FileNameExtensionFilter("todos los archivos "
+                                                  + "*.ch", "CH","ch"));
+        int sel = ventana.showOpenDialog(entrada.this);
+        
+        // incrementan en uno el contador 
+        inicialproceso++;
+        
+        
+        // condicional que le dara el nombre a el programa
+        String prefijo;
+        if (programa<10) {
+             prefijo="000"+String.valueOf(programa);
+            programa++;
+        }else{
+             prefijo="00"+String.valueOf(programa);
+        }
+        
+        if (sel == JFileChooser.APPROVE_OPTION) {
+
+            File file = ventana.getSelectedFile();
+            
+            String nombrea=file.getName();
+            actualizar(file.getPath(), prefijo,nombrea );
+
+        }
+  }
   
   
   // funcion encargada de leer el archivo y hacer el token
   public void actualizar(String url, String pre,String nombre){
        int lexa =0;
+       long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
         try{
                        
             instrucciones.clear();
@@ -347,9 +409,8 @@ else
             String operacion="";// alamcena el primer token  de la linea examinada
             
             String variablenueva="", tipo="", valor="";
-            String variablealmacene="";
             String nombreetiqueta="", numerolinea="";
-            String variablecargue="";
+            String variablealmacene="", variablecargue="";
            
             
             // variables  para calculos matematicos
@@ -360,6 +421,9 @@ else
             String variablepotencia="";
             String variablemodulo="";
             String variableconcatene="";
+            String variableelimine="",variableextraiga="";
+            
+            
             
             // ciclos
             String etiquetaini="";
@@ -372,14 +436,13 @@ else
             
             //operaciones con cadenas
             String variablelea="";
-            String numeroextraer="";
             
             // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
             String  errores= "**** ERRORES ENCONTRADOS ****\n\n";
            
             
             // SE ENCARGA DE RECORRER EL ARCHIVO Y CONTAR LA CANTIDAD DE LINEAS
-            long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
+            
             String sCadena;
             // CICLO QUE RECORRE CADA LINEA  HASTA QUE LA LINEA SEA NULL
             while ((sCadena = leer.readLine())!=null) {
@@ -414,7 +477,7 @@ else
                 
                 operacion= (tk.nextToken());
                 //concatena  el id de el programa  mas la linea del plrograma para ser mostrada en el mapa de memoria
-                linea=pre+"--"+linea;
+                
                 // evalua por casos  cada linea y hace los tokens  correspondientes
                 
                  switch (operacion) {
@@ -422,9 +485,12 @@ else
                             if (tk.countTokens()==1) {
                                  // hace el segundo token de la linea
                             variablecargue= (tk.nextToken());
+                                                        
                             //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);// guarda en la tabla  de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablecargue, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;
@@ -438,7 +504,11 @@ else
                             // hace el segundo token de la linea
                             variablealmacene= (tk.nextToken());
                             //agrega en el array list de instrucciones
-                            modelo.setValueAt(linea, posi, 1);
+                            
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablealmacene, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;
@@ -447,21 +517,27 @@ else
                             // hace el segundo token de la linea
                             etiquetaini= (tk.nextToken());
                             //agrega en el array list de instrucciones
-                            //agrega la linea completa al mapa de memoria
                             
-                            modelo.setValueAt(linea, posi, 1);
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(etiquetaini, posi, 4);// guarda en la tabla el valor de memoria
+                            
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;
                         
                         case "vayasi":
                             // hace el segundo token de la linea
-                            etiquetainicio= (tk.nextToken());
+                            etiquetaini= (tk.nextToken());
                             etiquetafin=(tk.nextToken());
                             //agrega en el array list de instrucciones
                             //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(etiquetaini+";"+etiquetafin, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;   
@@ -475,8 +551,10 @@ else
                             valor= (tk.nextToken());
                             //agrega en el array list de instrucciones
                             //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(valor, posi, 4);// guarda en la tabla el valor de memoria
                             
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             
@@ -509,7 +587,8 @@ else
                             nuevo[4]=valor;
                             var.add(nuevo); // almacena en laun array list para luego pasarlo a la  tabla variables 
                             
-                            nvariables.add(variablenueva+"="+valor) ;
+                            nvariables.add(variablenueva) ;
+                            nvariables.add(valor) ;
                             break; 
                             }else{
                                 throw new Exception("Invalid entry");
@@ -524,8 +603,10 @@ else
                             
                             inicialetiquetas++;
                             //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1); // adiciona la linea a el mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(numerolinea, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             
                             Object netiqueta[]=new Object[3];
@@ -540,106 +621,152 @@ else
                                 eti=leer3.readLine();
                             }
                             
-                            netiqueta[0]=pivote+j-3;//posicion en memoria
+                            netiqueta[0]=pivote+j-1;//posicion en memoria
                             netiqueta[1]=pre; //programa al q pertenece
                             netiqueta[2]=nombreetiqueta+" = "+eti; // nombre etiqueta mas la linea renombrada
                             etiq.add(netiqueta); // adiciona el arreglo a la tabla etiquetas
                             break;
                         
                         case "lea":
+                            variablelea=(tk.nextToken());
                             //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablelea, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                         
                         case "sume":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variablesume=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablesume, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "reste":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                           variablereste=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablereste, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "multiplique":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variablemultiplique=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemultiplique, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                          
                         case "divida":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variabledivida=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variabledivida, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "potencia":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variablepotencia=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablepotencia, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "modulo":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variablemodulo=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemodulo, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "concatene":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                             variableconcatene=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableconcatene, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "elimine":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variableelimine=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableelimine, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                         
                         case "extraiga":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                             variableextraiga=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableextraiga, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "muestre":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                            variablemuestre=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemuestre, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "imprima":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                             variableimprimir=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableimprimir, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "retorne":
-                            //agrega la linea completa al mapa de memoria
-                            
-                            modelo.setValueAt(linea, posi, 1);
+                             
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                         case "//":
-                            System.out.println("entro");
-                            posi--;
+                            /*System.out.println("entro");
+                            posi--;*/
+                            
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("COMENTARIO", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             
                           default:
@@ -670,7 +797,7 @@ else
             //hubicado  y lo muetra en tabla de variables
             int tempoposi=posi;
             // toma el valor  de las variables del nuevo archivo mas las filas ocupadas de la tabla
-            int lim=nvariables.size()+q;
+            int lim=(nvariables.size()/2)+q;
             for ( int r=q; r < lim; r++) {
                 tempoposi++;
                 // le da el valor de la posicion  de la variable en la memoria a  la tabala d evariables
@@ -679,10 +806,14 @@ else
             
             
             //concatena el prefijo con la instruccion en el mapa de memoria las variables defidas
-            for (int a = 0; a < nvariables.size(); a++) {
+            for (int a = 0; a < nvariables.size(); a+=2) {
                 posi++;
                 // agrega toda la instruccion a la memoria 
-                modelo.setValueAt(pre+"--"+nvariables.get(a), posi, 1);
+               
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("VARIABLE", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(nvariables.get(a), posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(nvariables.get(a+1), posi, 4);// guarda en la tabla el valor de memoria
                 memoriaprin[posi]=nvariables.get(a); // guarda en el vector principal de memoria
                 
                 
@@ -710,20 +841,66 @@ else
       }catch(Exception e){
           // retrocede el ide del programa en 1  pues el programa que lo ocupava no se cargo
           programa--;
-          
-            //Messaje que se muestra cuando hay error dentro del 'try'
+           // recupera el valor de la memoria restante 
+          int memoriarestante=((int)memoria.getValue()- pivote);
+          // condicion que  define que tipo de error surgio en el proceso
+            if (lNumeroLineas>memoriarestante) {
+                // borra lo que se halla subido a la memoria si por casulaidad salta un error 
+            for (int i = pivote; i < (int)memoria.getValue(); i++) {
+                 modelo.setValueAt("", i, 1);
+                 memoriaprin[i]="";
+            }
+                //Messaje que se muestra cuando hay error dentro del 'try'
+            JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
+                   +"pues  el tamaño de este es superior a la memoria restante");
+            }else{
+                //Messaje que se muestra cuando hay error dentro del 'try'
             JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
                     + "en la linea "+lexa+" es posible que uno de los datos del archivo \nno coincida con el formato");
-        
+            }
+  
       }
-        
-        
+         
   }
   
-   
-   
-    
-
+  // funcion encargada de tomar el valor de una variable y asignarselo a el acumulador 
+  public void cargue(String programa, String variable){
+      
+       int tamaño=tvariables.getRowCount();
+       int filas=0;
+       // recorre la tabla de variable en busca de la condicion
+       while(filas<tamaño){
+           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+               // agrega toda la instruccion a la memoria  en el acumulador 
+                modelo.setValueAt(tvariables.getValueAt(filas, 4), 0, 4);
+                memoriaprin[0]=(String) tvariables.getValueAt(filas, 4); // guarda en el vector principal de memoria en el acumlador
+                break;
+           }
+           filas++;
+       }
+      
+  }
+  
+  public void almacene (String programa, String variable){
+      String acumulador=(String) modelo.getValueAt(0, 4);
+      int filas=0;
+      int tamaño=tvariables.getRowCount();
+       // recorre la tabla de variable en busca de la condicion
+       while(filas<tamaño){
+           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+               int posicion= (int) tvariables.getValueAt(filas, 0);
+               // agrega toda la instruccion a la memoria  en el acumulador 
+                modelo.setValueAt(acumulador, posicion, 4);
+                // agrega el nuevo valor a la tabla de variables
+                tvariables.setValueAt(acumulador, filas, 4);
+               
+                break;
+           }
+           filas++;
+       }
+  }
+  
+  
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -758,6 +935,9 @@ else
         tablavariables = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        botoncargar = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        estado = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         archivo = new javax.swing.JMenu();
         encender2 = new javax.swing.JMenuItem();
@@ -795,9 +975,11 @@ else
         });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("KERNEL");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("MEMORIA");
 
         total_memoria.setBackground(new java.awt.Color(255, 255, 255));
@@ -857,6 +1039,7 @@ else
             }
         });
         tabla.setEnabled(false);
+        tabla.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(tabla);
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -880,6 +1063,8 @@ else
                 "Title 1", "Title 2", "Title 3", "Title 4", "Título 5", "Título 6"
             }
         ));
+        tabla2.setEnabled(false);
+        tabla2.getTableHeader().setReorderingAllowed(false);
         jScrollPane4.setViewportView(tabla2);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -896,6 +1081,7 @@ else
                 "Title 1", "Title 2", "Título 3"
             }
         ));
+        tablaetiquetas.setEnabled(false);
         jScrollPane5.setViewportView(tablaetiquetas);
 
         tablavariables.setModel(new javax.swing.table.DefaultTableModel(
@@ -909,6 +1095,7 @@ else
                 "Title 1", "Title 2", "null", "Título 4", "null"
             }
         ));
+        tablavariables.setEnabled(false);
         jScrollPane6.setViewportView(tablavariables);
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -916,6 +1103,21 @@ else
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel7.setText("tabla de variables");
+
+        botoncargar.setText("CARGAR ACHIVO .CH");
+        botoncargar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botoncargarActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("LA MAQUINA ESTA:");
+
+        estado.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        estado.setForeground(new java.awt.Color(255, 255, 255));
+        estado.setText("APAGADA");
 
         archivo.setText("ARCHIVO");
         archivo.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1023,105 +1225,114 @@ else
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(62, 62, 62)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(100, 100, 100)
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(138, 138, 138)
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel7)
+                                .addGap(129, 129, 129)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(33, 33, 33)
+                                .addComponent(jLabel6))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
+                        .addGap(70, 70, 70)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel1))
-                                .addGap(97, 97, 97)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel8)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(estado)))
+                                .addGap(54, 54, 54)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel1))
+                                        .addGap(97, 97, 97)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(11, 11, 11)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(botoncargar)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addGap(82, 82, 82))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(197, 197, 197)
-                        .addComponent(jLabel7)
-                        .addGap(129, 129, 129))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(jLabel6))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(248, 248, 248)
+                                .addComponent(jLabel2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(49, 49, 49)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel1)
-                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel3))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(encender)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(apagarmaquina1)))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(13, 13, 13)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(estado))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(116, 116, 116)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(8, 8, 8)))
+                        .addComponent(encender)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(apagarmaquina1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(botoncargar)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -1134,34 +1345,7 @@ else
 
     private void cargarprogramaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarprogramaActionPerformed
         // TODO add your handling code here:
-        // encargado de abrir el panel de busqueda de archivos y cargarlo a la funcion actualizar.
-        JFileChooser ventana = new JFileChooser();
-        // filtra las extenciones segun la que buscamos
-        ventana.setFileFilter(new FileNameExtensionFilter("todos los archivos "
-                                                  + "*.ch", "CH","ch"));
-        int sel = ventana.showOpenDialog(entrada.this);
-        
-        // incrementan en uno el contador 
-        inicialproceso++;
-        
-        
-        // condicional que le dara el nombre a el programa
-        String prefijo;
-        if (programa<10) {
-             prefijo="000"+String.valueOf(programa);
-            programa++;
-        }else{
-             prefijo="00"+String.valueOf(programa);
-        }
-        
-        if (sel == JFileChooser.APPROVE_OPTION) {
-
-            File file = ventana.getSelectedFile();
-            
-            String nombrea=file.getName();
-            actualizar(file.getPath(), prefijo,nombrea );
-
-        }
+        cargararchivo();
     }//GEN-LAST:event_cargarprogramaActionPerformed
 
     private void total_memoriaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_total_memoriaAncestorAdded
@@ -1325,6 +1509,11 @@ else
         
     }//GEN-LAST:event_documentacionActionPerformed
 
+    private void botoncargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botoncargarActionPerformed
+        // TODO add your handling code here:
+        cargararchivo();
+    }//GEN-LAST:event_botoncargarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1368,12 +1557,14 @@ else
     private javax.swing.JToggleButton apagarmaquina1;
     private javax.swing.JMenuItem apagarmaquina2;
     private javax.swing.JMenu archivo;
+    private javax.swing.JButton botoncargar;
     private javax.swing.JMenuItem cargarprograma;
     private javax.swing.JMenuItem documentacion;
     private javax.swing.JButton encender;
     private javax.swing.JMenuItem encender2;
     private javax.swing.JMenuItem encender3;
     private javax.swing.JMenuItem encender4;
+    private javax.swing.JLabel estado;
     private javax.swing.JTextPane impresora;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -1382,6 +1573,7 @@ else
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;

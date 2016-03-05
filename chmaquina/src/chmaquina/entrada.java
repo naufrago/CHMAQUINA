@@ -882,19 +882,21 @@ else
   
   // funcion encargada de tomar el valor de una variable y asignarselo a el acumulador 
   public void cargue(String programa, String variable){
-      
        int tamaño=tvariables.getRowCount();
        int filas=0;
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
-               // agrega toda la instruccion a la memoria  en el acumulador 
+           // captura las variables y las caste a a cadenas
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
+               // agrega toda la instruccion a la memoria  en el acumulador
                 modelo.setValueAt(tvariables.getValueAt(filas, 4), 0, 4);
-                memoriaprin[0]=(String) tvariables.getValueAt(filas, 4); // guarda en el vector principal de memoria en el acumlador
-                break;
+                filas=tamaño;
            }
            filas++;
        }
+       System.out.println("nuevo valor del acumulador "+modelo.getValueAt(0, 4)+"\n\n");
       
   }
   
@@ -902,67 +904,82 @@ else
   // Y ALMACENAR EL VALOR DEL ACUMULADOR EN UNA VARIABLE 
   //DADA
   public void almacene (String programa, String variable){
-      String acumulador=(String) modelo.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+            String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
                int posicion= (int) tvariables.getValueAt(filas, 0);
                // agrega toda la instruccion a la memoria  en el acumulador 
                 modelo.setValueAt(acumulador, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(acumulador, filas, 4);
                
-                break;
+                filas=tamaño;
            }
            filas++;
        }
+      System.out.println("nuevo valor de "+variable+" es "+acumulador+"\n\n");
   }
   
   // funcion que crea un ciclo y retorna la posicion de memoria 
   // donde debe continuar  esta funcion se aplica para vaya  y vayasi
   public String vaya(String programa, String etiqueta ){
+      
       int filas=0;
       String pos="";
       int tamaño=tetiquetas.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tetiquetas.getValueAt(filas, 1)==programa && tetiquetas.getValueAt(filas,2 )==etiqueta) {
+           String prog=(String)tetiquetas.getValueAt(filas, 1);
+           String etique=(String) tetiquetas.getValueAt(filas,2 );
+           if (prog.equals(programa) && etique.equals(etiqueta)) {
+           System.out.println("entro al vaya");
               // optiene el valor de la posicion donde debe iniciar el ciclo
-             pos  = (String) tetiquetas.getValueAt(filas, 0);
+             pos  = (String) tetiquetas.getValueAt(filas, 0).toString();
               filas=tamaño;
             }
            filas++;
-  }
+  }System.out.println("pos nueva "+ pos);
         return pos;
   }
   
   
   // funcion que le pide al usuario que  ingrese un valor requerido
   //y lo retorna 
-  public String lea(String programa, String variable){
+  public void lea(String programa, String variable){
       
       int filas=0;
       int tamaño=tvariables.getRowCount();
       String tipo="";
+      int posicion=0;
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
            if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
                // captura el tipo de la variable con la cual se busca  captuara un dato
                tipo=  (String) tvariables.getValueAt(filas, 2);
+               posicion= (int) tvariables.getValueAt(filas, 0);
                break;
            }
            filas++;
        }
       //solicota el dato al usuario
       String datodeusuario=JOptionPane.showInputDialog("INGRESE UN VALOR DE TIPO "+tipo); 
-        return datodeusuario;
+      
+      // agrega el nuevo valor  a la memoria  
+                tabla.setValueAt(datodeusuario, posicion, 4);
+                // agrega el nuevo valor a la tabla de variables
+                tvariables.setValueAt(datodeusuario, filas, 4);
+      
   }
  
   //funcion  que suma el valor del acumulador con el valor de una variable 
   public void sume(String programa, String variable){
-      float acumulador= (float) modelo.getValueAt(0, 4);
+      float acumulador= (float) tabla.getValueAt(0, 4);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -974,7 +991,7 @@ else
                
                float resultado=acumulador +valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -987,32 +1004,59 @@ else
   
   //funcion  que reste el valor del acumulador con el valor de una variable
   public void reste(String programa, String variable){
-      float acumulador= (float) modelo.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+            String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
+               String val=(String) tvariables.getValueAt(filas, 4);
+               float valor=  Float.parseFloat(val);
                
                float resultado=acumulador - valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(resultado, filas, 4);
-               
-                break;
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
            }
            filas++;
        }
+       System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
       
   }
   
   //funcion  que multiplique el valor del acumulador con el valor de una variable
   public void multiplique(String programa, String variable){
-      float acumulador= (float) modelo.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
+      int filas=0;
+      int tamaño=tvariables.getRowCount();
+       // recorre la tabla de variable en busca de la condicion
+       while(filas<tamaño){
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
+              // captura la posicion de memoria dond eesta la variable
+               String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               float valor=  Float.parseFloat(val);
+               
+               float resultado=acumulador * valor;
+               // agrega el nuevo valor  a la memoria  en el acumulador 
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
+           }
+           filas++;
+       }
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+  }
+  
+   //funcion  que divide el valor del acumulador con el valor de una variable
+  public void divide(String programa, String variable){
+      float acumulador= (float) tabla.getValueAt(0, 4);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1022,9 +1066,9 @@ else
                int posicion= (int) tvariables.getValueAt(filas, 0);
                float valor=  (float) tvariables.getValueAt(filas, 4);
                
-               float resultado=acumulador * valor;
+               float resultado=acumulador / valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1037,7 +1081,7 @@ else
   
    //funcion  que potencia el valor del acumulador con el valor de una variable
   public void potencia(String programa, String variable){
-      float acumulador= (float) modelo.getValueAt(0, 4);
+      float acumulador= (float) tabla.getValueAt(0, 4);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1049,7 +1093,7 @@ else
                // hace el calculo de la potencia  con la base y el  exponente
                float resultado = (float) Math.pow(acumulador, valor);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1062,7 +1106,7 @@ else
   
    //funcion  de modulo el  valor del acumulador con el valor de una variable
   public void modulo(String programa, String variable){
-      float acumulador= (float) modelo.getValueAt(0, 4);
+      float acumulador= (float) tabla.getValueAt(0, 4);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1074,7 +1118,7 @@ else
                // hace el calculo del modulo del acumulador dividido con el valor de la variable
                float resultado = acumulador % valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1087,7 +1131,7 @@ else
   
   //funcion  de concatenar  el  valor del acumulador con el valor de una variable
   public void concatene(String programa, String variable){
-      String acumulador=  (String) modelo.getValueAt(0, 4);
+      String acumulador=  (String) tabla.getValueAt(0, 4);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1099,7 +1143,7 @@ else
                // hace la concatenacion del  acumulador y el valor de la variable
                String resultado = acumulador + valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1112,7 +1156,7 @@ else
   
    //funcion  que elimina una parte del acumulador con el valor de una variable
   public void elimine(String programa, String variable){
-      String acumulador=  (String) modelo.getValueAt(0, 4),resultado="";
+      String acumulador=  (String) tabla.getValueAt(0, 4),resultado="";
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1124,7 +1168,7 @@ else
                // hace la eliminacion de una parte del   acumulador con el valor de valor de la variable
                resultado = acumulador.replace(valor, "");
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1137,7 +1181,7 @@ else
   
    //funcion  que extraiga los primeros caracteres del acumulador deacuerdo con el valor de una variable
   public void extraiga(String programa, String variable){
-      String acumulador=  (String) modelo.getValueAt(0, 4),resultado="";
+      String acumulador=  (String) tabla.getValueAt(0, 4),resultado="";
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1149,7 +1193,7 @@ else
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = acumulador.substring(0, valor);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion, 4);
+                tabla.setValueAt(resultado, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(resultado, filas, 4);
                
@@ -1161,16 +1205,19 @@ else
   }
    
   //funcion   mostrar en el monitor los primeros caracteres del acumulador deacuerdo con el valor de una variable
-  public void mostar(String programa, String variable){
+  public void mostrar(String programa, String variable){
       String resultado="";
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
+           
               // captura la posicion de memoria dond eesta la variable
               
-               String valor=    (String) tvariables.getValueAt(filas, 4);
+               String valor=    (String) tvariables.getValueAt(filas, 4).toString();
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
                String muestra=monitor.getText();
@@ -1191,10 +1238,12 @@ else
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                
-               String valor=    (String) tvariables.getValueAt(filas, 4);
+               String valor=    (String) tvariables.getValueAt(filas, 4).toString();
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
                String muestra=impresora.getText();
@@ -1205,6 +1254,118 @@ else
            }
            filas++;
        }
+      
+  }
+  
+  public void ejecutar(){
+      // toma el valor de el kernel para iniciar a ejecutar
+      int inicio=(int) kernel.getValue();
+      // define el limite  de las  instrucciones en memoria
+      int ultimaf= tabla2.getRowCount();
+      System.out.println(ultimaf);
+      int limite= (int) tabla2.getValueAt(ultimaf-1, 5);
+      
+      // ciclo encargado de recorrer todas las instrucciones en la memoria
+      for (int i = inicio+1; i < limite; i++) {
+          // variables capturadoras de cada fila de la tabla de memoria
+          String pos_memoria=  (String) modelo.getValueAt(i, 0).toString();
+          String programaa=  (String) modelo.getValueAt(i, 1).toString();
+          String instruccion=  (String) modelo.getValueAt(i, 2).toString();
+          String argumento=  (String) modelo.getValueAt(i, 3).toString();
+          String valor=  (String) modelo.getValueAt(i, 4).toString();
+          System.out.println("instruccion= "+instruccion);
+           switch (instruccion) {
+                        case "cargue":
+                            cargue( programaa, valor);
+                            break;
+                        
+                        case "almacene":
+                            almacene (programaa, valor);
+                            break;
+                            
+                        case "vaya":
+                            vaya(programaa, valor );
+                            
+                            break;
+                        
+                        case "vayasi":
+                            StringTokenizer etiquetas = new StringTokenizer(valor, ";");
+                            String inicioo = etiquetas.nextToken();
+                            String fin = etiquetas.nextToken();
+                            String continua= String.valueOf(i);
+                            float acum =(float) modelo.getValueAt(0,4);
+                            if (acum>0.0) {
+                                System.out.println("valor de iantes  es"+i+ " y acum es "+ acum);
+                               continua=vaya(programaa, inicioo );
+                               i=Integer.parseInt(continua)-1;
+                               System.out.println("valor de i es"+i);
+                            }
+                                else if(acum<0.0){
+                                    continua=vaya(programaa, fin );
+                                    i=Integer.parseInt(continua)-1;
+                                }
+                            break;   
+                            
+                        case "lea":
+                            lea( programaa, valor);
+                            break;
+                        
+                        case "sume":
+                            sume(programaa,valor);
+                            break;
+                            
+                        case "reste":
+                           reste(programaa,valor);
+                            break;
+                            
+                        case "multiplique":
+                            multiplique(programaa,valor);
+                            break;
+                         
+                        case "divida":
+                            divide(programaa,valor);
+                            break;
+                            
+                        case "potencia":
+                            potencia(programaa,valor);
+                            break;
+                            
+                        case "modulo":
+                            modulo(programaa,valor);
+                            break;
+                            
+                        case "concatene":
+                            concatene(programaa,valor);
+                            break;
+                            
+                        case "elimine":
+                            elimine(programaa,valor);
+                            break;
+                        
+                        case "extraiga":
+                            extraiga(programaa,valor);
+                            break;
+                            
+                        case "muestre":
+                           mostrar(programaa,valor);
+                            break;
+                            
+                        case "imprima":
+                            imprimir(programaa,valor);
+                            break;
+                            
+                        case "retorne":
+                             modelo.setValueAt(0, 0, 4);
+                            
+                            break;
+                            
+                        
+                         
+                        
+           }
+          
+      }
+      
       
   }
    
@@ -1247,6 +1408,7 @@ else
         botoncargar = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         estado = new javax.swing.JLabel();
+        ejecutar = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         archivo = new javax.swing.JMenu();
         encender2 = new javax.swing.JMenuItem();
@@ -1428,6 +1590,13 @@ else
         estado.setForeground(new java.awt.Color(255, 255, 255));
         estado.setText("APAGADA");
 
+        ejecutar.setText("EJECUTAR");
+        ejecutar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ejecutarActionPerformed(evt);
+            }
+        });
+
         archivo.setText("ARCHIVO");
         archivo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1584,10 +1753,13 @@ else
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(11, 11, 11)
                                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(botoncargar)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(botoncargar))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ejecutar)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(248, 248, 248)
@@ -1637,7 +1809,9 @@ else
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(8, 8, 8)))
-                        .addComponent(encender)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(encender)
+                            .addComponent(ejecutar))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(apagarmaquina1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1824,6 +1998,11 @@ else
         cargararchivo();
     }//GEN-LAST:event_botoncargarActionPerformed
 
+    private void ejecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ejecutarActionPerformed
+        // TODO add your handling code here:
+        ejecutar();
+    }//GEN-LAST:event_ejecutarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1870,6 +2049,7 @@ else
     private javax.swing.JButton botoncargar;
     private javax.swing.JMenuItem cargarprograma;
     private javax.swing.JMenuItem documentacion;
+    private javax.swing.JButton ejecutar;
     private javax.swing.JButton encender;
     private javax.swing.JMenuItem encender2;
     private javax.swing.JMenuItem encender3;

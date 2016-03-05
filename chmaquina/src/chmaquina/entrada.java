@@ -69,6 +69,7 @@ public class entrada extends JFrame {
         apagarmaquina1.setEnabled(false);
         apagarmaquina2.setEnabled(false);
         botoncargar.setEnabled(false);
+        ejecutar.setVisible(false);
         
         
         //fundamento encargado de la imagen de fondo del ch-maquina
@@ -956,14 +957,18 @@ else
       int filas=0;
       int tamaño=tvariables.getRowCount();
       String tipo="";
-      int posicion=0;
+      int posicion=0,fil=0;
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+            String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
+               System.out.println("enro lea");
                // captura el tipo de la variable con la cual se busca  captuara un dato
                tipo=  (String) tvariables.getValueAt(filas, 2);
                posicion= (int) tvariables.getValueAt(filas, 0);
-               break;
+               fil=filas;
+              filas=tamaño;
            }
            filas++;
        }
@@ -971,35 +976,35 @@ else
       String datodeusuario=JOptionPane.showInputDialog("INGRESE UN VALOR DE TIPO "+tipo); 
       
       // agrega el nuevo valor  a la memoria  
-                tabla.setValueAt(datodeusuario, posicion, 4);
+                modelo.setValueAt(datodeusuario, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(datodeusuario, filas, 4);
-      
+                tvariables.setValueAt(datodeusuario, fil, 4);
+      System.out.println("valor de lea "+ modelo.getValueAt(posicion, 4));
   }
  
   //funcion  que suma el valor del acumulador con el valor de una variable 
   public void sume(String programa, String variable){
-      float acumulador= (float) tabla.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
-               int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
+               String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               float valor=  Float.parseFloat(val);
                
-               float resultado=acumulador +valor;
+               float resultado=acumulador + valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(resultado, filas, 4);
-               
-                break;
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
            }
            filas++;
        }
-      
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
   }
   
   //funcion  que reste el valor del acumulador con el valor de una variable
@@ -1056,102 +1061,108 @@ else
   
    //funcion  que divide el valor del acumulador con el valor de una variable
   public void divide(String programa, String variable){
-      float acumulador= (float) tabla.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
-               int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
+               String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               float valor=  Float.parseFloat(val);
                
                float resultado=acumulador / valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(resultado, filas, 4);
-               
-                break;
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
            }
            filas++;
        }
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
       
   }
   
    //funcion  que potencia el valor del acumulador con el valor de una variable
   public void potencia(String programa, String variable){
-      float acumulador= (float) tabla.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
-               int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
-               // hace el calculo de la potencia  con la base y el  exponente
+               String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               float valor=  Float.parseFloat(val);
+               
                float resultado = (float) Math.pow(acumulador, valor);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(resultado, filas, 4);
-               
-                break;
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
            }
            filas++;
        }
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
       
   }
   
    //funcion  de modulo el  valor del acumulador con el valor de una variable
   public void modulo(String programa, String variable){
-      float acumulador= (float) tabla.getValueAt(0, 4);
+      String acumu = (String) modelo.getValueAt(0,4).toString();
+      float acumulador =Float.parseFloat(acumu);
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
-               int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
-               // hace el calculo del modulo del acumulador dividido con el valor de la variable
-               float resultado = acumulador % valor;
-               // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
-                tvariables.setValueAt(resultado, filas, 4);
+               String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               float valor=  Float.parseFloat(val);
                
-                break;
+               float resultado = acumulador%valor;
+               // agrega el nuevo valor  a la memoria  en el acumulador 
+                modelo.setValueAt(resultado, 0, 4);
+                filas=tamaño;
            }
            filas++;
        }
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
       
   }
   
   //funcion  de concatenar  el  valor del acumulador con el valor de una variable
   public void concatene(String programa, String variable){
-      String acumulador=  (String) tabla.getValueAt(0, 4);
+      String acumulador=  (String) modelo.getValueAt(0, 4).toString();
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                int posicion= (int) tvariables.getValueAt(filas, 0);
-               float valor=  (float) tvariables.getValueAt(filas, 4);
+               //String val=String.valueOf(tvariables.getValueAt(filas, 4));
+               //float valor=  Float.parseFloat(val);
+               
                // hace la concatenacion del  acumulador y el valor de la variable
-               String resultado = acumulador + valor;
+               String resultado = acumulador + tvariables.getValueAt(filas, 4);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
+                modelo.setValueAt(resultado, posicion-1, 4);
                 tvariables.setValueAt(resultado, filas, 4);
                
-                break;
+                filas=tamaño;
            }
            filas++;
        }
-      
+      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
   }
   
    //funcion  que elimina una parte del acumulador con el valor de una variable
@@ -1221,7 +1232,7 @@ else
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
                String muestra=monitor.getText();
-               muestra=muestra+"\n\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado;
+               muestra=muestra+"RESULTADO DEL PROGRAMA "+ programa+".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
                monitor.setText(muestra);
                
                 break;
@@ -1247,7 +1258,8 @@ else
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
                String muestra=impresora.getText();
-               muestra=muestra+"\n\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado;
+               muestra=muestra+"RESULTADO DEL PROGRAMA "+ programa +".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
+               
                impresora.setText(muestra);
                
                 break;
@@ -1274,6 +1286,11 @@ else
           String argumento=  (String) modelo.getValueAt(i, 3).toString();
           String valor=  (String) modelo.getValueAt(i, 4).toString();
           System.out.println("instruccion= "+instruccion);
+          
+          macumulador.setText(modelo.getValueAt(0, 4).toString());
+          mpos_mem.setText(pos_memoria);
+          minst.setText(argumento);
+          mvalor.setText(valor);
            switch (instruccion) {
                         case "cargue":
                             cargue( programaa, valor);
@@ -1409,6 +1426,14 @@ else
         jLabel8 = new javax.swing.JLabel();
         estado = new javax.swing.JLabel();
         ejecutar = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        macumulador = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        mpos_mem = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        minst = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        mvalor = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         archivo = new javax.swing.JMenu();
         encender2 = new javax.swing.JMenuItem();
@@ -1597,6 +1622,30 @@ else
             }
         });
 
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel9.setText("ACUMULADOR");
+
+        macumulador.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        macumulador.setText("   ");
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel11.setText("POS-MEM");
+
+        mpos_mem.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        mpos_mem.setText("   ");
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel13.setText("INSTRUCCION");
+
+        minst.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        minst.setText("   ");
+
+        jLabel14.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel14.setText("VALOR");
+
+        mvalor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        mvalor.setText("   ");
+
         archivo.setText("ARCHIVO");
         archivo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1704,69 +1753,84 @@ else
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(70, 70, 70)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(estado)))
+                        .addGap(54, 54, 54)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel1))
+                                .addGap(97, 97, 97)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(macumulador, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addGap(11, 11, 11)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(mpos_mem, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(minst, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(mvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(botoncargar))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ejecutar)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(248, 248, 248)
+                        .addComponent(jLabel2)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(57, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(138, 138, 138)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel7)
+                        .addGap(129, 129, 129))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel11)
+                                        .addComponent(jLabel9)
+                                        .addComponent(jLabel13)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(138, 138, 138)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel7)
-                                .addGap(129, 129, 129)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(33, 33, 33)
-                                .addComponent(jLabel6)
-                                .addGap(0, 229, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
+                                .addGap(389, 389, 389)
+                                .addComponent(jLabel14)))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(estado)))
-                                .addGap(54, 54, 54)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel3)
-                                            .addComponent(jLabel1))
-                                        .addGap(97, 97, 97)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(11, 11, 11)
-                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(botoncargar))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(ejecutar)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(248, 248, 248)
-                                .addComponent(jLabel2))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(33, 33, 33)
+                        .addComponent(jLabel6)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1788,9 +1852,25 @@ else
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(219, 219, 219)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel9)
+                                    .addComponent(macumulador))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel11)
+                                    .addComponent(mpos_mem))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel13)
+                                    .addComponent(minst))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel14)
+                                    .addComponent(mvalor)))
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(jLabel7)
@@ -1995,14 +2075,17 @@ else
 
     private void botoncargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botoncargarActionPerformed
         // TODO add your handling code here:
+        ejecutar.setVisible(true);
         cargararchivo();
     }//GEN-LAST:event_botoncargarActionPerformed
 
     private void ejecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ejecutarActionPerformed
         // TODO add your handling code here:
+        botoncargar.setVisible(false);
+        estado.setText("MODO USUARIO");
         ejecutar();
     }//GEN-LAST:event_ejecutarActionPerformed
-
+   
     /**
      * @param args the command line arguments
      */
@@ -2057,6 +2140,9 @@ else
     private javax.swing.JLabel estado;
     private javax.swing.JTextPane impresora;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2064,6 +2150,7 @@ else
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;
@@ -2077,8 +2164,12 @@ else
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JSpinner kernel;
+    private javax.swing.JLabel macumulador;
     private javax.swing.JSpinner memoria;
+    private javax.swing.JLabel minst;
     private javax.swing.JTextPane monitor;
+    private javax.swing.JLabel mpos_mem;
+    private javax.swing.JLabel mvalor;
     private javax.swing.JTable tabla;
     private javax.swing.JTable tabla2;
     private javax.swing.JTable tablaetiquetas;

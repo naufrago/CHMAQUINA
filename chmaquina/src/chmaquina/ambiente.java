@@ -65,7 +65,7 @@ public class ambiente extends javax.swing.JFrame {
             String text = panel.getText();
             
             nombrea=jF1.getName();
-            String nombreArchivo= ruta; // Aqui se le asigna el nombre y 
+            String nombreArchivo= ruta; // Aqui se le asigna el nombre 
             
             FileWriter file = null;	 // la extension al archivo 
             try { 

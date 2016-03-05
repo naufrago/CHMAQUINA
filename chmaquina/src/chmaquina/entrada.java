@@ -7,6 +7,7 @@ package chmaquina;
 
 
 import java.awt.Desktop;
+import java.awt.print.PrinterException;
 import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -16,9 +17,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.print.Doc;
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -1610,7 +1622,6 @@ else
         jMenu3 = new javax.swing.JMenu();
         encender3 = new javax.swing.JMenuItem();
         encender4 = new javax.swing.JMenuItem();
-        jMenu6 = new javax.swing.JMenu();
         jMenu7 = new javax.swing.JMenu();
         documentacion = new javax.swing.JMenuItem();
         acercade = new javax.swing.JMenuItem();
@@ -1791,27 +1802,35 @@ else
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel9.setText("ACUMULADOR");
+        jLabel9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         macumulador.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         macumulador.setText("   ");
+        macumulador.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel11.setText("POS-MEM");
+        jLabel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         mpos_mem.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         mpos_mem.setText("   ");
+        mpos_mem.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel13.setText("INSTRUCCION");
+        jLabel13.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         minst.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         minst.setText("   ");
+        minst.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel14.setText("VALOR");
+        jLabel14.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         mvalor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         mvalor.setText("   ");
+        mvalor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         editor.setText("EDITOR");
         editor.addActionListener(new java.awt.event.ActionListener() {
@@ -1894,9 +1913,6 @@ else
 
         jMenuBar1.add(jMenu3);
 
-        jMenu6.setText("PAUSA");
-        jMenuBar1.add(jMenu6);
-
         jMenu7.setText("AYUDA");
         jMenu7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1925,6 +1941,11 @@ else
         jMenuBar1.add(jMenu7);
 
         jMenu5.setText("IMPRIMIR");
+        jMenu5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu5MouseClicked(evt);
+            }
+        });
         jMenuBar1.add(jMenu5);
 
         setJMenuBar(jMenuBar1);
@@ -1996,15 +2017,13 @@ else
                                     .addComponent(editor, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(pasoapaso)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel11)
-                                        .addComponent(jLabel9)
-                                        .addComponent(jLabel13))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel14)))))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(4, 4, 4)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2054,7 +2073,7 @@ else
                                     .addComponent(jLabel14)
                                     .addComponent(mvalor)))
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(jLabel7)
@@ -2220,11 +2239,17 @@ else
     }//GEN-LAST:event_acercadeActionPerformed
 
     private void encender3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender3ActionPerformed
-        // TODO add your handling code here:
+         botoncargar.setVisible(false);
+        estado.setText("MODO USUARIO");
+        ejecutar();
+// TODO add your handling code here:
     }//GEN-LAST:event_encender3ActionPerformed
 
     private void encender4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender4ActionPerformed
-        // TODO add your handling code here:
+botoncargar.setVisible(false);
+        estado.setText("MODO USUARIO");
+        pasoapaso();        
+// TODO add your handling code here:
     }//GEN-LAST:event_encender4ActionPerformed
 
     private void documentacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_documentacionActionPerformed
@@ -2290,6 +2315,15 @@ else
         pasoapaso();
         // TODO add your handling code here:
     }//GEN-LAST:event_pasoapasoActionPerformed
+
+    private void jMenu5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu5MouseClicked
+       //se encarga de imprimir el contenido de la impresora
+        try {
+            impresora.print();
+        } catch (PrinterException ex) {
+            
+        }
+    }//GEN-LAST:event_jMenu5MouseClicked
    
     /**
      * @param args the command line arguments
@@ -2359,7 +2393,6 @@ else
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu5;
-    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenu jMenu7;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem3;

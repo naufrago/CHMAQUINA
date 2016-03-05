@@ -70,6 +70,8 @@ public class entrada extends JFrame {
         apagarmaquina2.setEnabled(false);
         botoncargar.setEnabled(false);
         ejecutar.setVisible(false);
+        editor.setVisible(false);
+        pasoapaso.setVisible(false);
         
         
         //fundamento encargado de la imagen de fondo del ch-maquina
@@ -268,6 +270,8 @@ public class entrada extends JFrame {
         apagarmaquina2.setEnabled(true);
         botoncargar.setEnabled(true);
         estado.setText("MODO KEREL");
+        editor.setVisible(true);
+        
         
           //sonidoencender("inicio");
         son("inicio");
@@ -477,13 +481,21 @@ else
             for (int i=0; i<lNumeroLineas; i++){
                 //Se usa 'StringTokenizer' para tomar toda la linea  examinada
                 posi++; // aumenta en uno  las posiciones d ememoria para ocupar
-                String linea=leer2.readLine();
+                String linea=leer2.readLine().trim();
                 
                 lexa++;
                 StringTokenizer tk = new StringTokenizer(linea);
+            
+                // condiciona la linea para saber si esta vacia
+                if (linea.length()>0) {
+                 operacion= (tk.nextToken());
                 
-                operacion= (tk.nextToken());
-                //concatena  el id de el programa  mas la linea del plrograma para ser mostrada en el mapa de memoria
+                }else{
+                    // en caso tal que la linea este vacia  
+                    operacion=" ";
+                
+                
+                }
                 
                 // evalua por casos  cada linea y hace los tokens  correspondientes
                 
@@ -786,6 +798,18 @@ else
                             modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                        
+                        case " ":
+                            /*System.out.println("entro");
+                            posi--;*/
+                            
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("LINEA VACIA", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
                             
                           default:
                               // borra el ultimo programa cargado de la memoria 
@@ -863,15 +887,27 @@ else
           int memoriarestante=((int)memoria.getValue()- pivote);
           // condicion que  define que tipo de error surgio en el proceso
             if (lNumeroLineas>memoriarestante) {
-                // borra lo que se halla subido a la memoria si por casulaidad salta un error 
-            for (int i = pivote; i < (int)memoria.getValue(); i++) {
+                // borra lo que se halla subido a la memoria si por casulaidad salta un error
+                int tamaño=tabla2.getRowCount();
+                int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
+            for (int i = posisi; i < (int)memoria.getValue(); i++) {
                  modelo.setValueAt("", i, 1);
-                 memoriaprin[i]="";
+                 
             }
                 //Messaje que se muestra cuando hay error dentro del 'try'
             JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
                    +"pues  el tamaño de este es superior a la memoria restante");
             }else{
+                int tamaño=tabla2.getRowCount();
+                int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
+            for (int i = posisi; i < (int)memoria.getValue(); i++) {
+                 modelo.setValueAt("", i, 1);
+                 modelo.setValueAt("", i, 2);
+                 modelo.setValueAt("", i, 3);
+                 modelo.setValueAt("", i, 4);
+            
+            
+            }
                 //Messaje que se muestra cuando hay error dentro del 'try'
             JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
                     + "en la linea "+lexa+" es posible que uno de los datos del archivo \nno coincida con el formato");
@@ -1149,13 +1185,12 @@ else
            if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                int posicion= (int) tvariables.getValueAt(filas, 0);
-               //String val=String.valueOf(tvariables.getValueAt(filas, 4));
-               //float valor=  Float.parseFloat(val);
+               
                
                // hace la concatenacion del  acumulador y el valor de la variable
                String resultado = acumulador + tvariables.getValueAt(filas, 4);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                modelo.setValueAt(resultado, posicion-1, 4);
+                modelo.setValueAt(resultado, posicion, 4);
                 tvariables.setValueAt(resultado, filas, 4);
                
                 filas=tamaño;
@@ -1172,18 +1207,19 @@ else
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                int posicion= (int) tvariables.getValueAt(filas, 0);
                String valor=   (String) tvariables.getValueAt(filas, 4);
                // hace la eliminacion de una parte del   acumulador con el valor de valor de la variable
                resultado = acumulador.replace(valor, "");
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
+                modelo.setValueAt(resultado, posicion, 4);
                 tvariables.setValueAt(resultado, filas, 4);
                
-                break;
+                filas=tamaño;
            }
            filas++;
        }
@@ -1197,18 +1233,19 @@ else
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
        while(filas<tamaño){
-           if (tvariables.getValueAt(filas, 1)==programa && tvariables.getValueAt(filas,3 )==variable) {
+           String prog=(String) tvariables.getValueAt(filas, 1);
+           String vari=(String) tvariables.getValueAt(filas, 3);
+           if (prog.equals(programa) && vari.equals(variable)) {
               // captura la posicion de memoria dond eesta la variable
                int posicion= (int) tvariables.getValueAt(filas, 0);
                int valor=    (int) tvariables.getValueAt(filas, 4);
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = acumulador.substring(0, valor);
                // agrega el nuevo valor  a la memoria  en el acumulador 
-                tabla.setValueAt(resultado, posicion, 4);
-                // agrega el nuevo valor a la tabla de variables
+                 modelo.setValueAt(resultado, posicion, 4);
                 tvariables.setValueAt(resultado, filas, 4);
                
-                break;
+                filas=tamaño;
            }
            filas++;
        }
@@ -1387,6 +1424,134 @@ else
   }
    
   
+  public void pasoapaso(){
+      // toma el valor de el kernel para iniciar a ejecutar
+      int inicio=(int) kernel.getValue();
+      // define el limite  de las  instrucciones en memoria
+      int ultimaf= tabla2.getRowCount();
+      System.out.println(ultimaf);
+      int limite= (int) tabla2.getValueAt(ultimaf-1, 5);
+      int i = inicio+1;
+      // ciclo encargado de recorrer todas las instrucciones en la memoria
+      while ( i < limite) {
+          
+          // variables capturadoras de cada fila de la tabla de memoria
+          String pos_memoria=  (String) modelo.getValueAt(i, 0).toString();
+          String programaa=  (String) modelo.getValueAt(i, 1).toString();
+          String instruccion=  (String) modelo.getValueAt(i, 2).toString();
+          String argumento=  (String) modelo.getValueAt(i, 3).toString();
+          String valor=  (String) modelo.getValueAt(i, 4).toString();
+          System.out.println("instruccion= "+instruccion);
+          
+          macumulador.setText(modelo.getValueAt(0, 4).toString());
+          mpos_mem.setText(pos_memoria);
+          minst.setText(argumento);
+          mvalor.setText(valor);
+           switch (instruccion) {
+                        case "cargue":
+                            cargue( programaa, valor);
+                            break;
+                        
+                        case "almacene":
+                            almacene (programaa, valor);
+                            break;
+                            
+                        case "vaya":
+                            vaya(programaa, valor );
+                            
+                            break;
+                        
+                        case "vayasi":
+                            StringTokenizer etiquetas = new StringTokenizer(valor, ";");
+                            String inicioo = etiquetas.nextToken();
+                            String fin = etiquetas.nextToken();
+                            String continua= String.valueOf(i);
+                            float acum =(float) modelo.getValueAt(0,4);
+                            if (acum>0.0) {
+                                System.out.println("valor de iantes  es"+i+ " y acum es "+ acum);
+                               continua=vaya(programaa, inicioo );
+                               i=Integer.parseInt(continua)-1;
+                               System.out.println("valor de i es"+i);
+                            }
+                                else if(acum<0.0){
+                                    continua=vaya(programaa, fin );
+                                    i=Integer.parseInt(continua)-1;
+                                }
+                            break;   
+                            
+                        case "lea":
+                            lea( programaa, valor);
+                            break;
+                        
+                        case "sume":
+                            sume(programaa,valor);
+                            break;
+                            
+                        case "reste":
+                           reste(programaa,valor);
+                            break;
+                            
+                        case "multiplique":
+                            multiplique(programaa,valor);
+                            break;
+                         
+                        case "divida":
+                            divide(programaa,valor);
+                            break;
+                            
+                        case "potencia":
+                            potencia(programaa,valor);
+                            break;
+                            
+                        case "modulo":
+                            modulo(programaa,valor);
+                            break;
+                            
+                        case "concatene":
+                            concatene(programaa,valor);
+                            break;
+                            
+                        case "elimine":
+                            elimine(programaa,valor);
+                            break;
+                        
+                        case "extraiga":
+                            extraiga(programaa,valor);
+                            break;
+                            
+                        case "muestre":
+                           mostrar(programaa,valor);
+                            break;
+                            
+                        case "imprima":
+                            imprimir(programaa,valor);
+                            break;
+                            
+                        case "retorne":
+                             modelo.setValueAt(0, 0, 4);
+                            
+                            break;
+                            
+                        
+                         
+                        
+           }
+           if(JOptionPane.showOptionDialog(this, "¿DESEA SEGUIR LA EJECUCION PASO A PASO?", "Mensaje de Alerta",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{" SI "," NO "},"NO")==0)
+        {
+            i++;
+       
+        }else
+        {
+          ejecutar();
+          i=limite;
+            }
+          
+      }
+      
+      
+  }
+  
   
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1434,6 +1599,8 @@ else
         minst = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         mvalor = new javax.swing.JLabel();
+        editor = new javax.swing.JButton();
+        pasoapaso = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         archivo = new javax.swing.JMenu();
         encender2 = new javax.swing.JMenuItem();
@@ -1646,6 +1813,20 @@ else
         mvalor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         mvalor.setText("   ");
 
+        editor.setText("EDITOR");
+        editor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editorActionPerformed(evt);
+            }
+        });
+
+        pasoapaso.setText("PASO A PASO");
+        pasoapaso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pasoapasoActionPerformed(evt);
+            }
+        });
+
         archivo.setText("ARCHIVO");
         archivo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1755,51 +1936,41 @@ else
             .addGroup(layout.createSequentialGroup()
                 .addGap(70, 70, 70)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(estado)))
-                        .addGap(54, 54, 54)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel1))
-                                .addGap(97, 97, 97)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(macumulador, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                    .addGap(11, 11, 11)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(mpos_mem, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(minst, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(mvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(botoncargar))
+                        .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(ejecutar)))
+                        .addComponent(estado)))
+                .addGap(54, 54, 54)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel1))
+                        .addGap(97, 97, 97)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(memoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(kernel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(macumulador, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGap(11, 11, 11)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(mpos_mem, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(minst, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(248, 248, 248)
-                        .addComponent(jLabel2)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel2))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(57, Short.MAX_VALUE))))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 622, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(57, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -1809,20 +1980,33 @@ else
                         .addComponent(jLabel7)
                         .addGap(129, 129, 129))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(24, 24, 24)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(encender, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(apagarmaquina1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(botoncargar))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(ejecutar)
+                                    .addComponent(editor, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(pasoapaso)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel11)
                                         .addComponent(jLabel9)
-                                        .addComponent(jLabel13)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(389, 389, 389)
-                                .addComponent(jLabel14)))))
+                                        .addComponent(jLabel13))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel14)))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(33, 33, 33)
@@ -1875,7 +2059,7 @@ else
                             .addComponent(jLabel6)
                             .addComponent(jLabel7)
                             .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(13, 13, 13)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -1883,20 +2067,23 @@ else
                             .addComponent(estado))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(116, 116, 116)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(8, 8, 8)))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(116, 116, 116)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(encender)
-                            .addComponent(ejecutar))
+                            .addComponent(ejecutar)
+                            .addComponent(pasoapaso))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(apagarmaquina1)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(apagarmaquina1)
+                            .addComponent(editor))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(botoncargar)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -2076,6 +2263,8 @@ else
     private void botoncargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botoncargarActionPerformed
         // TODO add your handling code here:
         ejecutar.setVisible(true);
+        
+        pasoapaso.setVisible(true);
         cargararchivo();
     }//GEN-LAST:event_botoncargarActionPerformed
 
@@ -2085,6 +2274,22 @@ else
         estado.setText("MODO USUARIO");
         ejecutar();
     }//GEN-LAST:event_ejecutarActionPerformed
+    
+    
+    private void editorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editorActionPerformed
+        // TODO add your handling code here:
+        ambiente des= new ambiente();
+        des.setVisible(true);
+        
+       
+    }//GEN-LAST:event_editorActionPerformed
+
+    private void pasoapasoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasoapasoActionPerformed
+     botoncargar.setVisible(false);
+        estado.setText("MODO USUARIO");
+        pasoapaso();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pasoapasoActionPerformed
    
     /**
      * @param args the command line arguments
@@ -2132,6 +2337,7 @@ else
     private javax.swing.JButton botoncargar;
     private javax.swing.JMenuItem cargarprograma;
     private javax.swing.JMenuItem documentacion;
+    private javax.swing.JButton editor;
     private javax.swing.JButton ejecutar;
     private javax.swing.JButton encender;
     private javax.swing.JMenuItem encender2;
@@ -2170,6 +2376,7 @@ else
     private javax.swing.JTextPane monitor;
     private javax.swing.JLabel mpos_mem;
     private javax.swing.JLabel mvalor;
+    private javax.swing.JButton pasoapaso;
     private javax.swing.JTable tabla;
     private javax.swing.JTable tabla2;
     private javax.swing.JTable tablaetiquetas;

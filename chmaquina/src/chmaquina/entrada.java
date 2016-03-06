@@ -17,20 +17,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.io.*;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.print.Doc;
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.SimpleDoc;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -52,6 +40,8 @@ public class entrada extends JFrame {
      */
     DefaultTableModel modelo,tprocesos,tvariables, tetiquetas;
     String arc = "documentacion.pdf";
+    String mt="manual tecnico.pdf";
+    String mu="manual usuario.pdf";
     int programa=1; // cantidad de programas cargados
     String memoriaprin[]; // vector de memoria principal
     public static ArrayList<String> instrucciones;
@@ -62,9 +52,7 @@ public class entrada extends JFrame {
     int pivote=0;
     int rlp;
     int inicialproceso=0, inicialvariables=0,inicialetiquetas=0;
-    
-    
-    
+   
     public entrada() {
         initComponents();
         instrucciones=new ArrayList();
@@ -80,10 +68,13 @@ public class entrada extends JFrame {
         // impide apagar la maquina sin encenderla
         apagarmaquina1.setEnabled(false);
         apagarmaquina2.setEnabled(false);
+        // desactiva botones que no pueden ser inicializados sin orden previa
         botoncargar.setEnabled(false);
         ejecutar.setVisible(false);
         editor.setVisible(false);
         pasoapaso.setVisible(false);
+        IMP.setEnabled(false);
+        EJEC.setEnabled(false);
         
         
         //fundamento encargado de la imagen de fondo del ch-maquina
@@ -256,9 +247,11 @@ public class entrada extends JFrame {
    
            
   public void son(String archivo){
+      //carga en bufer el archivo de audio
       BufferedInputStream Mystream = new BufferedInputStream(getClass().getResourceAsStream(ruta+archivo+".wav")); 
     
       try{
+          //ejecuta el audio 
            AudioInputStream song = AudioSystem.getAudioInputStream(Mystream); 
            Clip sonido = AudioSystem.getClip(); 
            sonido.open(song); 
@@ -284,16 +277,13 @@ public class entrada extends JFrame {
         estado.setText("MODO KEREL");
         editor.setVisible(true);
         
-        
-          //sonidoencender("inicio");
+         //sonidoencender("inicio");
         son("inicio");
         rlp = (int)kernel.getValue()+1; // inicualiza el primer rcl
-        
         // INSTANCIA OBJETO PARA LLENAR  LA TABLA
         Object []object = new Object[5];
-        
-        
-        memoriaprin= new String[(int)memoria.getValue()];// inicializa  la memoria principal con el tamaño de memoria establecido
+        // inicializa  la memoria principal con el tamaño de memoria establecido
+        memoriaprin= new String[(int)memoria.getValue()];
         // VALORES POR DEFECTO DE LA PRIMERA POSICION DEL MAPA D EMEMORIA
         object[0]="0";
         object[1]="0000";
@@ -347,7 +337,12 @@ public class entrada extends JFrame {
   public void temporales(){
       
       File temp = new File(arc);
+      File temp1 = new File(mt);
+      File temp2 = new File(mu);
         temp.delete();
+        temp1.delete();
+        temp2.delete();
+      
   }
   
   // funcion encargada de apagar la maquina y regresarla  asu estado  inicial
@@ -376,6 +371,7 @@ else
   
   
   }
+  
   public void cargararchivo(){
       // encargado de abrir el panel de busqueda de archivos y cargarlo a la funcion actualizar.
         JFileChooser ventana = new JFileChooser();
@@ -413,15 +409,11 @@ else
        int lexa =0;
        long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
         try{
-                       
-            instrucciones.clear();
+             instrucciones.clear();
             nvariables.clear();
             // limpia los arreglos para que no queden rastros del programa anterior
           etiq.clear();
           var.clear();
-            
-            
-            
             // leee el archivo y lo carga en bufer
             FileReader file = new FileReader(url);
             BufferedReader leer = new BufferedReader(file);
@@ -506,11 +498,8 @@ else
                     // en caso tal que la linea este vacia  
                     operacion=" ";
                 
-                
                 }
-                
                 // evalua por casos  cada linea y hace los tokens  correspondientes
-                
                  switch (operacion) {
                         case "cargue":
                             if (tk.countTokens()==1) {
@@ -800,10 +789,7 @@ else
                             break;
                             
                         case "//":
-                            /*System.out.println("entro");
-                            posi--;*/
-                            
-                             //agrega la linea completa al mapa de memoria
+                           //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
                             modelo.setValueAt("COMENTARIO", posi, 2);// guarda en la tabla  la instruccion del programa
                             modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
@@ -812,10 +798,7 @@ else
                             break;
                         
                         case " ":
-                            /*System.out.println("entro");
-                            posi--;*/
-                            
-                             //agrega la linea completa al mapa de memoria
+                            //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
                             modelo.setValueAt("LINEA VACIA", posi, 2);// guarda en la tabla  la instruccion del programa
                             modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
@@ -825,22 +808,15 @@ else
                             
                           default:
                               // borra el ultimo programa cargado de la memoria 
-                              System.out.println("iniciql " +inicialmemoria);
                               for (int h = inicialmemoria; h < (int)memoria.getValue(); h++) {
                                   modelo.setValueAt("", h, 1);
                                   memoriaprin[h]="";
                               }
                               // hace el llamado a la exeption si algo esta mal en el archivo
                               throw new Exception("Invalid entry");
-                              
-                            
-                           
-                 }
-                
-             
-            }
-            
-             // carga si no hay problema las variables a la tabla variables
+                  }
+             }
+            // carga si no hay problema las variables a la tabla variables
             for (int b = 0; b < var.size(); b++) {
                 
                 tvariables.addRow(var.get(b));
@@ -857,9 +833,7 @@ else
                 // le da el valor de la posicion  de la variable en la memoria a  la tabala d evariables
                 tvariables.setValueAt(tempoposi, r, 0);
             }
-            
-            
-            //concatena el prefijo con la instruccion en el mapa de memoria las variables defidas
+           //concatena el prefijo con la instruccion en el mapa de memoria las variables defidas
             for (int a = 0; a < nvariables.size(); a+=2) {
                 posi++;
                 // agrega toda la instruccion a la memoria 
@@ -869,13 +843,8 @@ else
                             modelo.setValueAt(nvariables.get(a), posi, 3);// guarda en la tabla el argumento de memoria
                             modelo.setValueAt(nvariables.get(a+1), posi, 4);// guarda en la tabla el valor de memoria
                 memoriaprin[posi]=nvariables.get(a); // guarda en el vector principal de memoria
-                
-                
             }
-            
-           
-            
-            for (int c = 0; c < etiq.size(); c++) {
+             for (int c = 0; c < etiq.size(); c++) {
                 tetiquetas.addRow(etiq.get(c));
             }
           
@@ -889,8 +858,6 @@ else
            objectprocesos[4]=posi; //registro limite de el programa
            objectprocesos[5]=pivote ; // crea el rlp
            tprocesos.addRow(objectprocesos);// adiciona a la tabla 
-           
-           
            
       }catch(Exception e){
           // retrocede el ide del programa en 1  pues el programa que lo ocupava no se cargo
@@ -945,7 +912,7 @@ else
            }
            filas++;
        }
-       System.out.println("nuevo valor del acumulador "+modelo.getValueAt(0, 4)+"\n\n");
+      
       
   }
   
@@ -972,7 +939,7 @@ else
            }
            filas++;
        }
-      System.out.println("nuevo valor de "+variable+" es "+acumulador+"\n\n");
+      
   }
   
   // funcion que crea un ciclo y retorna la posicion de memoria 
@@ -987,13 +954,12 @@ else
            String prog=(String)tetiquetas.getValueAt(filas, 1);
            String etique=(String) tetiquetas.getValueAt(filas,2 );
            if (prog.equals(programa) && etique.equals(etiqueta)) {
-           System.out.println("entro al vaya");
-              // optiene el valor de la posicion donde debe iniciar el ciclo
+            // optiene el valor de la posicion donde debe iniciar el ciclo
              pos  = (String) tetiquetas.getValueAt(filas, 0).toString();
               filas=tamaño;
             }
            filas++;
-  }System.out.println("pos nueva "+ pos);
+  }
         return pos;
   }
   
@@ -1011,7 +977,6 @@ else
             String prog=(String) tvariables.getValueAt(filas, 1);
            String vari=(String) tvariables.getValueAt(filas, 3);
            if (prog.equals(programa) && vari.equals(variable)) {
-               System.out.println("enro lea");
                // captura el tipo de la variable con la cual se busca  captuara un dato
                tipo=  (String) tvariables.getValueAt(filas, 2);
                posicion= (int) tvariables.getValueAt(filas, 0);
@@ -1027,7 +992,6 @@ else
                 modelo.setValueAt(datodeusuario, posicion, 4);
                 // agrega el nuevo valor a la tabla de variables
                 tvariables.setValueAt(datodeusuario, fil, 4);
-      System.out.println("valor de lea "+ modelo.getValueAt(posicion, 4));
   }
  
   //funcion  que suma el valor del acumulador con el valor de una variable 
@@ -1052,7 +1016,7 @@ else
            }
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+      
   }
   
   //funcion  que reste el valor del acumulador con el valor de una variable
@@ -1078,7 +1042,7 @@ else
            }
            filas++;
        }
-       System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+       
       
   }
   
@@ -1104,7 +1068,7 @@ else
            }
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+     
   }
   
    //funcion  que divide el valor del acumulador con el valor de una variable
@@ -1121,16 +1085,21 @@ else
               // captura la posicion de memoria dond eesta la variable
                String val=String.valueOf(tvariables.getValueAt(filas, 4));
                float valor=  Float.parseFloat(val);
-               
-               float resultado=acumulador / valor;
+               //EN CASO TAL DE QUE LA VARIABLE TENGA UN CERO  VERIFICA  PRIMERO
+               if(valor!=0){
+                   float resultado=acumulador / valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
                 modelo.setValueAt(resultado, 0, 4);
-                filas=tamaño;
+                
+               }else{
+                  JOptionPane.showOptionDialog(this, "HAY DIVICION CON CERO POR TANTO"
+                           + "EL ACUMULADOR CONCERVA SU VALOR ORIGINAL", "ALERTA X/0",
+                           JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
+               }filas=tamaño;
+               
            }
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
-      
   }
   
    //funcion  que potencia el valor del acumulador con el valor de una variable
@@ -1155,7 +1124,6 @@ else
            }
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
       
   }
   
@@ -1173,15 +1141,20 @@ else
               // captura la posicion de memoria dond eesta la variable
                String val=String.valueOf(tvariables.getValueAt(filas, 4));
                float valor=  Float.parseFloat(val);
-               
-               float resultado = acumulador%valor;
+               //EN CASO TAL DE QUE LA VARIABLE TENGA UN CERO  VERIFICA  PRIMERO
+               if(valor!=0){
+                   float resultado=acumulador % valor;
                // agrega el nuevo valor  a la memoria  en el acumulador 
                 modelo.setValueAt(resultado, 0, 4);
-                filas=tamaño;
-           }
+                
+               }else{
+                  JOptionPane.showOptionDialog(this, "HAY DIVICION CON CERO POR TANTO"
+                           + "EL ACUMULADOR CONCERVA SU VALOR ORIGINAL", "ALERTA X/0",
+                           JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
+               }filas=tamaño;}
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+      
       
   }
   
@@ -1209,7 +1182,7 @@ else
            }
            filas++;
        }
-      System.out.println("el nuevo valor de el acumulador es "+ modelo.getValueAt(0,4)+"\n\n");
+    
   }
   
    //funcion  que elimina una parte del acumulador con el valor de una variable
@@ -1288,7 +1261,6 @@ else
            }
            filas++;
        }
-      
   }
   
   //funcion   mostrar en el impresora los primeros caracteres del acumulador deacuerdo con el valor de una variable
@@ -1307,9 +1279,10 @@ else
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
                String muestra=impresora.getText();
-               muestra=muestra+"RESULTADO DEL PROGRAMA "+ programa +".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
+               muestra=muestra+"RESULTADO DEL PROGRAMA "+ programa +".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\r\n\r";
                
                impresora.setText(muestra);
+              
                
                 break;
            }
@@ -1323,7 +1296,7 @@ else
       int inicio=(int) kernel.getValue();
       // define el limite  de las  instrucciones en memoria
       int ultimaf= tabla2.getRowCount();
-      System.out.println(ultimaf);
+      
       int limite= (int) tabla2.getValueAt(ultimaf-1, 5);
       
       // ciclo encargado de recorrer todas las instrucciones en la memoria
@@ -1334,7 +1307,7 @@ else
           String instruccion=  (String) modelo.getValueAt(i, 2).toString();
           String argumento=  (String) modelo.getValueAt(i, 3).toString();
           String valor=  (String) modelo.getValueAt(i, 4).toString();
-          System.out.println("instruccion= "+instruccion);
+         
           
           macumulador.setText(modelo.getValueAt(0, 4).toString());
           mpos_mem.setText(pos_memoria);
@@ -1361,10 +1334,9 @@ else
                             String continua= String.valueOf(i);
                             float acum =(float) modelo.getValueAt(0,4);
                             if (acum>0.0) {
-                                System.out.println("valor de iantes  es"+i+ " y acum es "+ acum);
-                               continua=vaya(programaa, inicioo );
+                                continua=vaya(programaa, inicioo );
                                i=Integer.parseInt(continua)-1;
-                               System.out.println("valor de i es"+i);
+                               
                             }
                                 else if(acum<0.0){
                                     continua=vaya(programaa, fin );
@@ -1441,7 +1413,7 @@ else
       int inicio=(int) kernel.getValue();
       // define el limite  de las  instrucciones en memoria
       int ultimaf= tabla2.getRowCount();
-      System.out.println(ultimaf);
+     
       int limite= (int) tabla2.getValueAt(ultimaf-1, 5);
       int i = inicio+1;
       // ciclo encargado de recorrer todas las instrucciones en la memoria
@@ -1453,9 +1425,9 @@ else
           String instruccion=  (String) modelo.getValueAt(i, 2).toString();
           String argumento=  (String) modelo.getValueAt(i, 3).toString();
           String valor=  (String) modelo.getValueAt(i, 4).toString();
-          System.out.println("instruccion= "+instruccion);
           
-          macumulador.setText(modelo.getValueAt(0, 4).toString());
+          // muestra en la interfaz los procesos que se estan ejecutando
+         macumulador.setText(modelo.getValueAt(0, 4).toString());
           mpos_mem.setText(pos_memoria);
           minst.setText(argumento);
           mvalor.setText(valor);
@@ -1480,10 +1452,10 @@ else
                             String continua= String.valueOf(i);
                             float acum =(float) modelo.getValueAt(0,4);
                             if (acum>0.0) {
-                                System.out.println("valor de iantes  es"+i+ " y acum es "+ acum);
+                              
                                continua=vaya(programaa, inicioo );
                                i=Integer.parseInt(continua)-1;
-                               System.out.println("valor de i es"+i);
+                               
                             }
                                 else if(acum<0.0){
                                     continua=vaya(programaa, fin );
@@ -1544,25 +1516,18 @@ else
                             
                             break;
                             
-                        
-                         
-                        
            }
            if(JOptionPane.showOptionDialog(this, "¿DESEA SEGUIR LA EJECUCION PASO A PASO?", "Mensaje de Alerta",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{" SI "," NO "},"NO")==0)
         {
             i++;
-       
-        }else
+       }else
         {
           ejecutar();
           i=limite;
             }
-          
-      }
-      
-      
-  }
+     }
+   }
   
   
     /**
@@ -1619,13 +1584,16 @@ else
         cargarprograma = new javax.swing.JMenuItem();
         apagarmaquina2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
-        jMenu3 = new javax.swing.JMenu();
+        EJEC = new javax.swing.JMenu();
         encender3 = new javax.swing.JMenuItem();
         encender4 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
         documentacion = new javax.swing.JMenuItem();
+        manualt = new javax.swing.JMenuItem();
+        manualt1 = new javax.swing.JMenuItem();
         acercade = new javax.swing.JMenuItem();
-        jMenu5 = new javax.swing.JMenu();
+        IMP = new javax.swing.JMenu();
+        IMPRI = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1802,35 +1770,27 @@ else
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel9.setText("ACUMULADOR");
-        jLabel9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         macumulador.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         macumulador.setText("   ");
-        macumulador.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel11.setText("POS-MEM");
-        jLabel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         mpos_mem.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         mpos_mem.setText("   ");
-        mpos_mem.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel13.setText("INSTRUCCION");
-        jLabel13.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         minst.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         minst.setText("   ");
-        minst.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel14.setText("VALOR");
-        jLabel14.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         mvalor.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         mvalor.setText("   ");
-        mvalor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 3));
 
         editor.setText("EDITOR");
         editor.addActionListener(new java.awt.event.ActionListener() {
@@ -1891,7 +1851,7 @@ else
 
         jMenuBar1.add(archivo);
 
-        jMenu3.setText("EJECUTAR");
+        EJEC.setText("EJECUTAR");
 
         encender3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         encender3.setText("RECORRIDO");
@@ -1900,7 +1860,7 @@ else
                 encender3ActionPerformed(evt);
             }
         });
-        jMenu3.add(encender3);
+        EJEC.add(encender3);
 
         encender4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         encender4.setText("PASO A PASO");
@@ -1909,9 +1869,9 @@ else
                 encender4ActionPerformed(evt);
             }
         });
-        jMenu3.add(encender4);
+        EJEC.add(encender4);
 
-        jMenuBar1.add(jMenu3);
+        jMenuBar1.add(EJEC);
 
         jMenu7.setText("AYUDA");
         jMenu7.addActionListener(new java.awt.event.ActionListener() {
@@ -1929,6 +1889,24 @@ else
         });
         jMenu7.add(documentacion);
 
+        manualt.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
+        manualt.setText("MANUAL TECNICO");
+        manualt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                manualtActionPerformed(evt);
+            }
+        });
+        jMenu7.add(manualt);
+
+        manualt1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
+        manualt1.setText("MANUAL USUARIO");
+        manualt1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                manualt1ActionPerformed(evt);
+            }
+        });
+        jMenu7.add(manualt1);
+
         acercade.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
         acercade.setText("ACERCA DE");
         acercade.addActionListener(new java.awt.event.ActionListener() {
@@ -1940,13 +1918,23 @@ else
 
         jMenuBar1.add(jMenu7);
 
-        jMenu5.setText("IMPRIMIR");
-        jMenu5.addMouseListener(new java.awt.event.MouseAdapter() {
+        IMP.setText("IMPRIMIR");
+        IMP.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenu5MouseClicked(evt);
+                IMPMouseClicked(evt);
             }
         });
-        jMenuBar1.add(jMenu5);
+
+        IMPRI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        IMPRI.setText("IMPRIMIR ");
+        IMPRI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IMPRIActionPerformed(evt);
+            }
+        });
+        IMP.add(IMPRI);
+
+        jMenuBar1.add(IMP);
 
         setJMenuBar(jMenuBar1);
 
@@ -1977,13 +1965,14 @@ else
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(total_memoria, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(macumulador, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGap(11, 11, 11)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(mpos_mem, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(minst, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(mvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(macumulador, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGap(11, 11, 11)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(mpos_mem, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(minst, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(248, 248, 248)
@@ -2239,14 +2228,16 @@ else
     }//GEN-LAST:event_acercadeActionPerformed
 
     private void encender3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender3ActionPerformed
-         botoncargar.setVisible(false);
+        // boton ejecutar 
+        botoncargar.setVisible(false);
         estado.setText("MODO USUARIO");
         ejecutar();
 // TODO add your handling code here:
     }//GEN-LAST:event_encender3ActionPerformed
 
     private void encender4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encender4ActionPerformed
-botoncargar.setVisible(false);
+        //boton  paso a paso
+        botoncargar.setVisible(false);
         estado.setText("MODO USUARIO");
         pasoapaso();        
 // TODO add your handling code here:
@@ -2257,9 +2248,6 @@ botoncargar.setVisible(false);
         // carga  el documento  que contiene la documentacion 
            
         try{
-            
-            //copias la direccion
-            
             //nuevo archivo en esa direccion
             File temp = new File(arc);
             InputStream is = this.getClass().getResourceAsStream("/documentacion/documentacion.pdf");
@@ -2278,16 +2266,15 @@ botoncargar.setVisible(false);
             Desktop.getDesktop().open(temp);
             
         } catch (IOException ex) {
-            System.out.println("Problema abriendo el pdf de erfc");
-        }
-
-        
-        
+            
+        }   
     }//GEN-LAST:event_documentacionActionPerformed
 
     private void botoncargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botoncargarActionPerformed
         // TODO add your handling code here:
         ejecutar.setVisible(true);
+        IMP.setEnabled(true);
+        EJEC.setEnabled(true);
         
         pasoapaso.setVisible(true);
         cargararchivo();
@@ -2316,14 +2303,76 @@ botoncargar.setVisible(false);
         // TODO add your handling code here:
     }//GEN-LAST:event_pasoapasoActionPerformed
 
-    private void jMenu5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu5MouseClicked
+    private void IMPMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_IMPMouseClicked
        //se encarga de imprimir el contenido de la impresora
+        
+    }//GEN-LAST:event_IMPMouseClicked
+
+    private void IMPRIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IMPRIActionPerformed
+        // TODO add your handling code here:
+         //se encarga de imprimir el contenido de la impresora
+        String print =impresora.getText();
+        impresora.setText(print);
+        System.out.println("imprimira "+print);
         try {
+            
             impresora.print();
         } catch (PrinterException ex) {
             
         }
-    }//GEN-LAST:event_jMenu5MouseClicked
+    }//GEN-LAST:event_IMPRIActionPerformed
+
+    private void manualtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manualtActionPerformed
+          // carga  el documento  que contiene la documentacion 
+           
+        try{
+            //nuevo archivo en esa direccion
+            File temp = new File(mt);
+            InputStream is = this.getClass().getResourceAsStream("/documentacion/manualtecnico.pdf");
+            FileOutputStream archivoDestino = new FileOutputStream(temp);
+            //FileWriter fw = new FileWriter(temp);
+            byte[] buffer = new byte[1024*1024];
+            //lees el archivo hasta que se acabe...
+            int nbLectura;
+            while ((nbLectura = is.read(buffer)) != -1)
+                archivoDestino.write(buffer, 0, nbLectura);
+            //cierras el archivo,el inputS y el FileW
+            //fw.close();
+            archivoDestino.close();
+            is.close();
+            //abres el archivo temporal
+            Desktop.getDesktop().open(temp);
+            
+        } catch (IOException ex) {
+            
+        }   
+    }//GEN-LAST:event_manualtActionPerformed
+
+    private void manualt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manualt1ActionPerformed
+          // carga  el documento  que contiene la documentacion 
+           
+        try{
+            //nuevo archivo en esa direccion
+            File temp = new File(mu);
+            InputStream is = this.getClass().getResourceAsStream("/documentacion/manualusuario.pdf");
+            FileOutputStream archivoDestino = new FileOutputStream(temp);
+            //FileWriter fw = new FileWriter(temp);
+            byte[] buffer = new byte[1024*1024];
+            //lees el archivo hasta que se acabe...
+            int nbLectura;
+            while ((nbLectura = is.read(buffer)) != -1)
+                archivoDestino.write(buffer, 0, nbLectura);
+            //cierras el archivo,el inputS y el FileW
+            //fw.close();
+            archivoDestino.close();
+            is.close();
+            //abres el archivo temporal
+            Desktop.getDesktop().open(temp);
+            
+        } catch (IOException ex) {
+            
+        }   // TODO add your handling code here:
+    }//GEN-LAST:event_manualt1ActionPerformed
    
     /**
      * @param args the command line arguments
@@ -2364,6 +2413,9 @@ botoncargar.setVisible(false);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu EJEC;
+    private javax.swing.JMenu IMP;
+    private javax.swing.JMenuItem IMPRI;
     private javax.swing.JMenuItem acercade;
     private javax.swing.JToggleButton apagarmaquina1;
     private javax.swing.JMenuItem apagarmaquina2;
@@ -2391,8 +2443,6 @@ botoncargar.setVisible(false);
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu7;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem3;
@@ -2404,6 +2454,8 @@ botoncargar.setVisible(false);
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JSpinner kernel;
     private javax.swing.JLabel macumulador;
+    private javax.swing.JMenuItem manualt;
+    private javax.swing.JMenuItem manualt1;
     private javax.swing.JSpinner memoria;
     private javax.swing.JLabel minst;
     private javax.swing.JTextPane monitor;

@@ -5,10 +5,8 @@
  */
 package chmaquina;
 
-import static chmaquina.entrada.etiq;
-import static chmaquina.entrada.instrucciones;
-import static chmaquina.entrada.nvariables;
-import static chmaquina.entrada.var;
+
+import java.awt.print.PrinterException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -63,7 +61,6 @@ public class ambiente extends javax.swing.JFrame {
             ruta = jF1.getSelectedFile().getAbsolutePath(); 
             //Aqui ya tiens la ruta,,,ahora puedes crear un fichero n esa ruta y escribir lo k kieras... 
             String text = panel.getText();
-            
             nombrea=jF1.getName();
             String nombreArchivo= ruta; // Aqui se le asigna el nombre 
             
@@ -80,7 +77,6 @@ public class ambiente extends javax.swing.JFrame {
             } 
                 catch (Exception e) { 
             }
-            
             } 
             }catch (Exception ex){ 
                 ex.printStackTrace(); 
@@ -95,12 +91,7 @@ public class ambiente extends javax.swing.JFrame {
         ventana.setFileFilter(new FileNameExtensionFilter("todos los archivos "
                                                   + "*.ch", "CH","ch"));
         int sel = ventana.showOpenDialog(ambiente.this);
-        
-        // incrementan en uno el contador 
-        
-        
-        
-        // condicional que le dara el nombre a el programa
+         // condicional que le dara el nombre a el programa
         String prefijo;
         if (programa<10) {
              prefijo="000"+String.valueOf(programa);
@@ -154,10 +145,11 @@ public class ambiente extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         panel = new javax.swing.JTextArea();
+        guardar = new javax.swing.JButton();
+        limpiar = new javax.swing.JButton();
+        terminar = new javax.swing.JButton();
+        cargar = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
-        LIMPIAR = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -166,31 +158,38 @@ public class ambiente extends javax.swing.JFrame {
         panel.setRows(5);
         jScrollPane1.setViewportView(panel);
 
-        jButton1.setText("GUARDAR");
+        guardar.setText("GUARDAR");
+        guardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guardarActionPerformed(evt);
+            }
+        });
+
+        limpiar.setText("LIMPIAR");
+        limpiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limpiarActionPerformed(evt);
+            }
+        });
+
+        terminar.setText("TERMINAR");
+        terminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                terminarActionPerformed(evt);
+            }
+        });
+
+        cargar.setText("CARGAR ARCHIVO");
+        cargar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("IMPRIMIR");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        LIMPIAR.setText("LIMPIAR");
-        LIMPIAR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LIMPIARActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText("TERMINAR");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        jButton3.setText("CARGAR ARCHIVO");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
             }
         });
 
@@ -202,12 +201,12 @@ public class ambiente extends javax.swing.JFrame {
                 .addContainerGap(63, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(43, 43, 43)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(LIMPIAR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
-                    .addComponent(jButton3))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(limpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(guardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(terminar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(39, 39, 39))
         );
         layout.setVerticalGroup(
@@ -216,13 +215,15 @@ public class ambiente extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(88, 88, 88)
-                        .addComponent(jButton3)
+                        .addComponent(cargar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(guardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(limpiar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(LIMPIAR)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(terminar))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -232,27 +233,41 @@ public class ambiente extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
         // TODO add your handling code here:
+        // boton encargado de guardar el archivo editado
         guardar();
-        
+    }//GEN-LAST:event_guardarActionPerformed
 
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void LIMPIARActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LIMPIARActionPerformed
-        // TODO add your handling code here:
+    private void limpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarActionPerformed
+        // boton encargado de limpiar el editor
         panel.setText("");
-    }//GEN-LAST:event_LIMPIARActionPerformed
+    }//GEN-LAST:event_limpiarActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+    private void terminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_terminarActionPerformed
+        //boton encargado de cerrar el editor
         dispose();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_terminarActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void cargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cargarActionPerformed
+        //boton encargado de cargar un archivo a editar.
         cargararchivo();
 // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_cargarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+//se encarga de imprimir el contenido de la impresora
+        String print =panel.getText();
+        panel.setText(print);
+        System.out.println("imprimira el panel de editor "+print);
+        try {
+            
+            panel.print();
+        } catch (PrinterException ex) {
+            
+        }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     
     /**
@@ -261,11 +276,12 @@ public class ambiente extends javax.swing.JFrame {
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton LIMPIAR;
+    private javax.swing.JButton cargar;
+    private javax.swing.JButton guardar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton limpiar;
     private javax.swing.JTextArea panel;
+    private javax.swing.JButton terminar;
     // End of variables declaration//GEN-END:variables
 }

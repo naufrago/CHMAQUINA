@@ -882,7 +882,7 @@ else
                             
                         case "retorne":
                               //verifica  si esta bn el formato sino salta el error
-                            if (tk.countTokens()==1) {
+                            if (tk.countTokens()==0 || tk.countTokens()==1) {
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
                             modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
@@ -891,7 +891,7 @@ else
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
                             }else{
-                                errores=errores+"RETORNE debe tener dos   argumentos en esta linea";
+                                errores=errores+"RETORNE debe tener uno argumento o dos, y este debe ser 0 en esta linea";
                                 throw new Exception("Invalid entry");
                             }
                             

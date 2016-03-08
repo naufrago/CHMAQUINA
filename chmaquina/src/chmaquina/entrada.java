@@ -408,6 +408,8 @@ else
   public void actualizar(String url, String pre,String nombre){
        int lexa =0;
        long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
+       // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
+            String  errores= "";
         try{
              instrucciones.clear();
             nvariables.clear();
@@ -452,8 +454,7 @@ else
             //operaciones con cadenas
             String variablelea="";
             
-            // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
-            String  errores= "**** ERRORES ENCONTRADOS ****\n\n";
+            
            
             
             // SE ENCARGA DE RECORRER EL ARCHIVO Y CONTAR LA CANTIDAD DE LINEAS
@@ -483,6 +484,7 @@ else
             int q=tvariables.getRowCount();
             // FOR ENCARGADO DE RECORRER  EL ARCHIVO LINEA POR LINEA PARA HACER LOS TOKENS
             for (int i=0; i<lNumeroLineas; i++){
+                errores= "**** SUGERENCIAS PARA CORREGIR LOS ERRORES ENCONTRADOS ****\n\n";
                 //Se usa 'StringTokenizer' para tomar toda la linea  examinada
                 posi++; // aumenta en uno  las posiciones d ememoria para ocupar
                 String linea=leer2.readLine().trim();
@@ -502,6 +504,7 @@ else
                 // evalua por casos  cada linea y hace los tokens  correspondientes
                  switch (operacion) {
                         case "cargue":
+                            //verifica  si esta bn el formato sino salta el error
                             if (tk.countTokens()==1) {
                                  // hace el segundo token de la linea
                             variablecargue= (tk.nextToken());
@@ -515,12 +518,14 @@ else
                             instrucciones.add(pre + " " + linea);
                             break;
                             }else{
-                                errores=errores+"debe tener dos argumentos en esta linea";
+                                errores=errores+"CARGUE debe tener dos argumentos en esta linea";
                                 throw new Exception("Invalid entry");
                             }
                             
                         
                         case "almacene":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             // hace el segundo token de la linea
                             variablealmacene= (tk.nextToken());
                             //agrega en el array list de instrucciones
@@ -532,8 +537,14 @@ else
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;
+                            }else{
+                                errores=errores+"ALAMCENE debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "vaya":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             // hace el segundo token de la linea
                             etiquetaini= (tk.nextToken());
                             //agrega en el array list de instrucciones
@@ -547,8 +558,14 @@ else
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
                             break;
+                            }else{
+                                errores=errores+"VAYA debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                         
                         case "vayasi":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==2) {
                             // hace el segundo token de la linea
                             etiquetaini= (tk.nextToken());
                             etiquetafin=(tk.nextToken());
@@ -560,15 +577,21 @@ else
                             modelo.setValueAt(etiquetaini+";"+etiquetafin, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             instrucciones.add(pre + " " + linea);
-                            break;   
+                            break;  
+                            }else{
+                                errores=errores+"VAYASI debe tener tres argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "nueva":
-                            if (tk.countTokens()>=3 || tk.countTokens()==4) {
+                            
+                            if (tk.countTokens()>1 && tk.countTokens()<4) {
                                inicialvariables++;
+                                System.out.println("cantidad de tokens "+tk.countTokens());
                             // hace el segundo token de la linea
                             variablenueva= (tk.nextToken());
                             tipo=(tk.nextToken());
-                                if (tk.countTokens()==3) {
+                                if (tk.countTokens()<1) {
                                     if ("c".equals(variablenueva) || "C".equals(variablenueva)  ) {
                                         valor=" ";
                                     }else{
@@ -621,11 +644,14 @@ else
                             nvariables.add(valor) ;
                             break; 
                             }else{
+                                errores=errores+"NUEVA debe tener tres  o cuatro argumentos en esta linea";
                                 throw new Exception("Invalid entry");
                             }
                             
                         
                         case "etiqueta":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==2) {
                              // hace el segundo token de la linea
                             nombreetiqueta =(tk.nextToken());
                             numerolinea=(tk.nextToken());
@@ -657,8 +683,14 @@ else
                             netiqueta[3]=eti; // la linea renombrada
                             etiq.add(netiqueta); // adiciona el arreglo a la tabla etiquetas
                             break;
+                            }else{
+                                errores=errores+"ETIQUETA debe tener tres   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                         
                         case "lea":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablelea=(tk.nextToken());
                             //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -667,8 +699,14 @@ else
                             modelo.setValueAt(variablelea, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"LEA debe tener tres   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                         
                         case "sume":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablesume=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -677,8 +715,14 @@ else
                             modelo.setValueAt(variablesume, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"SUME debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "reste":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                            variablereste=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -687,8 +731,14 @@ else
                             modelo.setValueAt(variablereste, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"RESTE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "multiplique":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablemultiplique=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -697,8 +747,14 @@ else
                             modelo.setValueAt(variablemultiplique, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"MULTIPLIQUE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                          
                         case "divida":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variabledivida=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -707,8 +763,14 @@ else
                             modelo.setValueAt(variabledivida, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                             }else{
+                                errores=errores+"DIVIDA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "potencia":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablepotencia=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -717,8 +779,14 @@ else
                             modelo.setValueAt(variablepotencia, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
-                            
+                            }else{
+                                errores=errores+"POTENCIA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
                         case "modulo":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablemodulo=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -727,8 +795,14 @@ else
                             modelo.setValueAt(variablemodulo, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"MODULO debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "concatene":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                              variableconcatene=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -737,8 +811,14 @@ else
                             modelo.setValueAt(variableconcatene, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"CONCATENE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "elimine":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variableelimine=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -747,8 +827,14 @@ else
                             modelo.setValueAt(variableelimine, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"ELIMINE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                         
                         case "extraiga":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                              variableextraiga=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -757,8 +843,14 @@ else
                             modelo.setValueAt(variableextraiga, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"EXTRAIGA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "muestre":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                             variablemuestre=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -767,8 +859,14 @@ else
                             modelo.setValueAt(variablemuestre, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"MUESTRE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "imprima":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                              variableimprimir=(tk.nextToken());
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
@@ -777,9 +875,14 @@ else
                             modelo.setValueAt(variableimprimir, posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"IMPRIMA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "retorne":
-                             
+                              //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
                              //agrega la linea completa al mapa de memoria
                             modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
                             modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
@@ -787,6 +890,10 @@ else
                             modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
                             memoriaprin[posi]=linea; // guarda en el vector principal de memoria
                             break;
+                            }else{
+                                errores=errores+"RETORNE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
                             
                         case "//":
                            //agrega la linea completa al mapa de memoria
@@ -813,6 +920,7 @@ else
                                   memoriaprin[h]="";
                               }
                               // hace el llamado a la exeption si algo esta mal en el archivo
+                              errores=errores+"esta linea no cumple con ninguna de las reglas de sintaxis de .ch";
                               throw new Exception("Invalid entry");
                   }
              }
@@ -888,8 +996,12 @@ else
             
             }
                 //Messaje que se muestra cuando hay error dentro del 'try'
-            JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
-                    + "en la linea "+lexa+" es posible que uno de los datos del archivo \nno coincida con el formato");
+            JOptionPane.showMessageDialog(null, "TENEMOS UN INCONVENIENTE:\n"
+                                              + "Se generó un error al cargar el archivo en la\n"
+                                              + "linea "+lexa+" es posible que uno de los datos\n"
+                                              + "del archivo no coincida con el formato\n\n"
+                                              + errores);
+           
             }
   
       }
@@ -1173,7 +1285,7 @@ else
                
                
                // hace la concatenacion del  acumulador y el valor de la variable
-               String resultado = acumulador + tvariables.getValueAt(filas, 4);
+               String resultado = tvariables.getValueAt(filas, 4)+acumulador ;
                // agrega el nuevo valor  a la memoria  en el acumulador 
                 modelo.setValueAt(resultado, posicion, 4);
                 tvariables.setValueAt(resultado, filas, 4);
@@ -2290,6 +2402,9 @@ else
     
     private void editorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editorActionPerformed
         // TODO add your handling code here:
+        // muestra  el boton cargar archivo de nuevo
+        botoncargar.setVisible(true);
+        // abre el panel del editor
         ambiente des= new ambiente();
         des.setVisible(true);
         

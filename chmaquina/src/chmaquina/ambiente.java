@@ -53,12 +53,17 @@ public class ambiente extends javax.swing.JFrame {
         
     }
     
+    
+    
     // funcion encargada de leer el archivo y hacer el token
   public void sintaxis(){
+       
        int lexa =0;
        long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
        // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
             String  errores= "";
+        
+        FileReader file2;   
         try{
             //Inicializo todas las variables a leer
             //de forma general
@@ -118,7 +123,7 @@ public class ambiente extends javax.swing.JFrame {
             lNumeroLineas++;
             }
             
-            FileReader file2 = new FileReader("editor.txt");
+            file2 = new FileReader("editor.txt");
             BufferedReader leer2 = new BufferedReader(file2);
            
             // FOR ENCARGADO DE RECORRER  EL ARCHIVO LINEA POR LINEA PARA HACER LOS TOKENS
@@ -151,6 +156,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"CARGUE debe tener dos argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -166,6 +172,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"ALAMCENE debe tener dos argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -179,6 +186,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"VAYA debe tener dos argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                         
@@ -192,6 +200,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;  
                             }else{
                                 errores=errores+"VAYASI debe tener tres argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -232,6 +241,7 @@ public class ambiente extends javax.swing.JFrame {
                                 default:
                                     errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
                                                     "parece error en el tipo de variable";
+                                    file2.close();
                                     
                                     
                             }
@@ -239,6 +249,7 @@ public class ambiente extends javax.swing.JFrame {
                             break; 
                             }else{
                                 errores=errores+"NUEVA debe tener tres  o cuatro argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -255,6 +266,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"ETIQUETA debe tener tres   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                         
@@ -266,6 +278,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"LEA debe tener tres   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                         
@@ -277,6 +290,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"SUME debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -288,6 +302,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"RESTE debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -299,6 +314,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"MULTIPLIQUE debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                          
@@ -310,6 +326,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                              }else{
                                 errores=errores+"DIVIDA debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -321,6 +338,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"POTENCIA debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                         
@@ -332,6 +350,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"MODULO debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -343,6 +362,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"CONCATENE debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -354,6 +374,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"ELIMINE debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                         
@@ -365,6 +386,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"EXTRAIGA debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -376,6 +398,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"MUESTRE debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -387,6 +410,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"IMPRIMA debe tener dos   argumentos en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -397,6 +421,7 @@ public class ambiente extends javax.swing.JFrame {
                             break;
                             }else{
                                 errores=errores+"RETORNE debe tener uno argumento o dos, y este debe ser 0 en esta linea";
+                                file2.close();
                                 throw new Exception("Invalid entry");
                             }
                             
@@ -412,9 +437,11 @@ public class ambiente extends javax.swing.JFrame {
                               
                               // hace el llamado a la exeption si algo esta mal en el archivo
                               errores=errores+"esta linea no cumple con ninguna de las reglas de sintaxis de .ch";
+                              file2.close();
                               throw new Exception("Invalid entry");
                   }
              }
+            file2.close();
             File temp = new File("editor.txt");
             temp.delete();
             //Messaje que se muestra cuando todo salio bien en el  'try'
@@ -423,7 +450,7 @@ public class ambiente extends javax.swing.JFrame {
             
             
             
-      }catch(Exception e){
+      }catch(Exception e){;
             File temp = new File("editor.txt");
             temp.delete();
               

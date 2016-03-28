@@ -339,6 +339,8 @@ public class entrada extends JFrame {
         temp.delete();
         temp1.delete();
         temp2.delete();
+     File temp3 = new File("editor.txt");
+            temp3.delete();
       
   }
   

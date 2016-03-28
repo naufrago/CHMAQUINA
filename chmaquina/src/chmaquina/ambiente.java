@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.StringTokenizer;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -51,6 +52,394 @@ public class ambiente extends javax.swing.JFrame {
         fondo.setBounds(0,0,uno.getIconWidth(),uno.getIconHeight());
         
     }
+    
+    // funcion encargada de leer el archivo y hacer el token
+  public void sintaxis(){
+       int lexa =0;
+       long lNumeroLineas = 0;// INICIALIZA EL CONTADOR DE LAS LINEAS DEL ARCHIVO
+       // ALMACENARA LA LISTA DELOS ERRORES ENCONTRADOS 
+            String  errores= "";
+        try{
+            //Inicializo todas las variables a leer
+            //de forma general
+            
+            String operacion="";// alamcena el primer token  de la linea examinada
+            
+            String variablenueva="", tipo="", valor="";
+            String nombreetiqueta="", numerolinea="";
+            String variablealmacene="", variablecargue="";
+           
+            
+            // variables  para calculos matematicos
+            String variablesume="";
+            String variablereste="";
+            String variablemultiplique="";
+            String variabledivida="";
+            String variablepotencia="";
+            String variablemodulo="";
+            String variableconcatene="";
+            String variableelimine="",variableextraiga="";
+            
+            
+            
+            // ciclos
+            String etiquetaini="";
+            String etiquetainicio="", etiquetafin="";
+            
+            // entrega de resultados
+            String variablemuestre="";
+            String variableimprimir="";
+            
+            
+            //operaciones con cadenas
+            String variablelea="";
+            String contenido=panel.getText();
+            
+            FileWriter file = null;	 // la extension al archivo 
+            try { 
+                file = new FileWriter("editor.txt"); 
+                BufferedWriter escribir = new BufferedWriter(file); 
+                PrintWriter archivo = new PrintWriter(escribir); 
+
+                archivo.print(contenido); 
+                archivo.close(); 
+                
+            } 
+                catch (Exception e) { 
+            }
+            
+            FileReader file1 = new FileReader("editor.txt");
+            BufferedReader leer = new BufferedReader(file1);
+            // SE ENCARGA DE RECORRER EL ARCHIVO Y CONTAR LA CANTIDAD DE LINEAS
+            
+            String sCadena;
+            // CICLO QUE RECORRE CADA LINEA  HASTA QUE LA LINEA SEA NULL
+            while ((sCadena = leer.readLine())!=null) {
+            lNumeroLineas++;
+            }
+            
+            FileReader file2 = new FileReader("editor.txt");
+            BufferedReader leer2 = new BufferedReader(file2);
+           
+            // FOR ENCARGADO DE RECORRER  EL ARCHIVO LINEA POR LINEA PARA HACER LOS TOKENS
+            for (int i=0; i<lNumeroLineas; i++){
+                errores= "**** SUGERENCIAS PARA CORREGIR LOS ERRORES ENCONTRADOS ****\n\n";
+                //Se usa 'StringTokenizer' para tomar toda la linea  examinada
+                
+                String linea=leer2.readLine().trim();
+                
+                lexa++;
+                StringTokenizer tk = new StringTokenizer(linea);
+            
+                // condiciona la linea para saber si esta vacia
+                if (linea.length()>0) {
+                 operacion= (tk.nextToken());
+                
+                }else{
+                    // en caso tal que la linea este vacia  
+                    operacion=" ";
+                
+                }
+                // evalua por casos  cada linea y hace los tokens  correspondientes
+                 switch (operacion) {
+                        case "cargue":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                                 // hace el segundo token de la linea
+                            variablecargue= (tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"CARGUE debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "almacene":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            // hace el segundo token de la linea
+                            variablealmacene= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            
+                           
+                            break;
+                            }else{
+                                errores=errores+"ALAMCENE debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "vaya":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            // hace el segundo token de la linea
+                            etiquetaini= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            
+                            break;
+                            }else{
+                                errores=errores+"VAYA debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
+                        case "vayasi":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==2) {
+                            // hace el segundo token de la linea
+                            etiquetaini= (tk.nextToken());
+                            etiquetafin=(tk.nextToken());
+                            
+                            break;  
+                            }else{
+                                errores=errores+"VAYASI debe tener tres argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "nueva":
+                            
+                            if (tk.countTokens()>1 && tk.countTokens()<4) {
+                                System.out.println("cantidad de tokens "+tk.countTokens());
+                                // hace el segundo token de la linea
+                                variablenueva= (tk.nextToken());
+                                tipo=(tk.nextToken());
+                                if (tk.countTokens()<1) {
+                                    if ("c".equals(variablenueva) || "C".equals(variablenueva)  ) {
+                                        valor=" ";
+                                    }else{
+                                        valor="0";
+                                    }
+                                }else{
+                                     valor= (tk.nextToken());
+                                }
+                             
+                           
+                            
+                            switch (tipo){
+                                case "i":
+                                case "I":
+                                    tipo="ENTERO";
+                                    break;
+                                
+                                case "r":
+                                case "R":
+                                    tipo="REAL";
+                                    break;
+                                            
+                                case "c":
+                                case "C":
+                                    tipo="CADENA";
+                                    break;
+                                default:
+                                    errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
+                                                    "parece error en el tipo de variable";
+                                    
+                                    
+                            }
+                            
+                            break; 
+                            }else{
+                                errores=errores+"NUEVA debe tener tres  o cuatro argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "etiqueta":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==2) {
+                             // hace el segundo token de la linea
+                            nombreetiqueta =(tk.nextToken());
+                            numerolinea=(tk.nextToken());
+                            
+                            
+                            
+                            break;
+                            }else{
+                                errores=errores+"ETIQUETA debe tener tres   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
+                        case "lea":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablelea=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"LEA debe tener tres   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
+                        case "sume":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablesume=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"SUME debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "reste":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                           variablereste=(tk.nextToken());
+                             
+                            break;
+                            }else{
+                                errores=errores+"RESTE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "multiplique":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablemultiplique=(tk.nextToken());
+                             
+                            break;
+                            }else{
+                                errores=errores+"MULTIPLIQUE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                         
+                        case "divida":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variabledivida=(tk.nextToken());
+                             
+                            break;
+                             }else{
+                                errores=errores+"DIVIDA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "potencia":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablepotencia=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"POTENCIA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
+                        case "modulo":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablemodulo=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"MODULO debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "concatene":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                             variableconcatene=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"CONCATENE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "elimine":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variableelimine=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"ELIMINE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                        
+                        case "extraiga":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                             variableextraiga=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"EXTRAIGA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "muestre":
+                            //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                            variablemuestre=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"MUESTRE debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "imprima":
+                             //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==1) {
+                             variableimprimir=(tk.nextToken());
+                            
+                            break;
+                            }else{
+                                errores=errores+"IMPRIMA debe tener dos   argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "retorne":
+                              //verifica  si esta bn el formato sino salta el error
+                            if (tk.countTokens()==0 || tk.countTokens()==1) {
+                            
+                            break;
+                            }else{
+                                errores=errores+"RETORNE debe tener uno argumento o dos, y este debe ser 0 en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        case "//":
+                           
+                            break;
+                        
+                        case " ":
+                            
+                            break;
+                            
+                          default:
+                              
+                              // hace el llamado a la exeption si algo esta mal en el archivo
+                              errores=errores+"esta linea no cumple con ninguna de las reglas de sintaxis de .ch";
+                              throw new Exception("Invalid entry");
+                  }
+             }
+            File temp = new File("editor.txt");
+            temp.delete();
+            //Messaje que se muestra cuando todo salio bien en el  'try'
+            JOptionPane.showMessageDialog(null, "EL ANALISIS DE SINTAXIS FUE EXISTOSO NO SE IDENTIFICO NINGUN ERROR");
+            
+            
+            
+            
+      }catch(Exception e){
+            File temp = new File("editor.txt");
+            temp.delete();
+              
+                //Messaje que se muestra cuando hay error dentro del 'try'
+            JOptionPane.showMessageDialog(null, "TENEMOS UN INCONVENIENTE:\n"
+                                              + "Se generó un error al cargar el archivo en la\n"
+                                              + "linea "+lexa+" es posible que uno de los datos\n"
+                                              + "del archivo no coincida con el formato\n\n"
+                                              + errores);
+            
+           
+            }
+  
+      
+         
+  }
     
     
     public void guardar(){
@@ -157,9 +546,10 @@ public class ambiente extends javax.swing.JFrame {
         jToggleButton4 = new javax.swing.JToggleButton();
         jToggleButton5 = new javax.swing.JToggleButton();
         jLabel2 = new javax.swing.JLabel();
+        jToggleButton6 = new javax.swing.JToggleButton();
+        limpiar1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setUndecorated(true);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         panel.setColumns(20);
         panel.setRows(5);
@@ -241,6 +631,20 @@ public class ambiente extends javax.swing.JFrame {
         jLabel2.setIcon(new javax.swing.ImageIcon("D:\\BODEGA\\escritorio\\universidad\\6 semestre 2016-1\\sistemas operativos\\proyectos\\CH-GIT\\CHMAQUINA\\chmaquina\\src\\imagenes\\editor.png")); // NOI18N
         jLabel2.setText("editor");
 
+        jToggleButton6.setText("?");
+        jToggleButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton6ActionPerformed(evt);
+            }
+        });
+
+        limpiar1.setText("VERIFICAR SINTAXIS");
+        limpiar1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limpiar1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -260,35 +664,42 @@ public class ambiente extends javax.swing.JFrame {
                         .addGap(28, 28, 28))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(53, 53, 53)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(limpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(guardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(terminar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(cargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addComponent(jToggleButton2))
-                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(guardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(cargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(limpiar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jToggleButton3)
                                     .addComponent(jToggleButton1)
-                                    .addComponent(jToggleButton4)
-                                    .addComponent(jToggleButton5))))
+                                    .addComponent(jToggleButton2)
+                                    .addComponent(jToggleButton6)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(terminar, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                                    .addComponent(limpiar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jToggleButton5))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jToggleButton4)
+                                            .addComponent(jToggleButton3))))))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
@@ -299,7 +710,11 @@ public class ambiente extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(guardar)
                             .addComponent(jToggleButton1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(limpiar1)
+                            .addComponent(jToggleButton6))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(limpiar)
                             .addComponent(jToggleButton3))
@@ -310,8 +725,8 @@ public class ambiente extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(terminar)
-                            .addComponent(jToggleButton5))
-                        .addContainerGap())))
+                            .addComponent(jToggleButton5))))
+                .addGap(20, 20, 20))
         );
 
         pack();
@@ -393,6 +808,18 @@ public class ambiente extends javax.swing.JFrame {
                            JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
     }//GEN-LAST:event_jToggleButton5ActionPerformed
 
+    private void jToggleButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton6ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showOptionDialog(this, "ESTE BOTON SE ENCARGA DE VERIFICAR LA SINTAXIS DEL CONTENIDO DEL EDITOR \n", "INFORMACION",
+                           JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
+    }//GEN-LAST:event_jToggleButton6ActionPerformed
+
+    private void limpiar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiar1ActionPerformed
+        // TODO add your handling code here:
+        sintaxis();
+        
+    }//GEN-LAST:event_limpiar1ActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -411,7 +838,9 @@ public class ambiente extends javax.swing.JFrame {
     private javax.swing.JToggleButton jToggleButton3;
     private javax.swing.JToggleButton jToggleButton4;
     private javax.swing.JToggleButton jToggleButton5;
+    private javax.swing.JToggleButton jToggleButton6;
     private javax.swing.JButton limpiar;
+    private javax.swing.JButton limpiar1;
     private javax.swing.JTextArea panel;
     private javax.swing.JButton terminar;
     // End of variables declaration//GEN-END:variables

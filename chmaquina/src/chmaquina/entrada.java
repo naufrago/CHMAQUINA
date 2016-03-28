@@ -25,10 +25,7 @@ import javax.sound.sampled.Clip;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-
-
-
-
+ 
 /**
  *
  * @author aguir
@@ -256,7 +253,7 @@ public class entrada extends JFrame {
            Clip sonido = AudioSystem.getClip(); 
            sonido.open(song); 
            sonido.start();
-       }catch(Exception e){
+           }catch(Exception e){
            
        }
   }  
@@ -328,7 +325,7 @@ public class entrada extends JFrame {
            objectprocesos[2]=ker; // numero  de lineas del programa
            objectprocesos[3]=1; // rb
            objectprocesos[4]=ker; //registro limite de el programa
-           objectprocesos[5]=ker+1 ; // crea el rlp
+           objectprocesos[5]=ker ; // crea el rlp
            tprocesos.addRow(objectprocesos);// adiciona a la tabla
            
   }
@@ -357,7 +354,7 @@ public class entrada extends JFrame {
        // se encarga de  detener un instante el proceso
         try {
             Thread.sleep(2000);// el tiempo es en milisegundos
-        } catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
         }
        setVisible(false);
@@ -962,11 +959,11 @@ else
            objectprocesos[1]=nombre; // nombre del programa
            objectprocesos[2]=lNumeroLineas; // numero  de lineas del programa
            objectprocesos[3]=pivote; // rb
-           pivote=posi+1;// crea el nuevo pivote
-           objectprocesos[4]=posi; //registro limite de el programa
-           objectprocesos[5]=pivote ; // crea el rlp
-           tprocesos.addRow(objectprocesos);// adiciona a la tabla 
            
+           objectprocesos[4]=  pivote+lNumeroLineas-1;     //posi; //registro limite de el programa
+           objectprocesos[5]=posi;      //pivote ; // crea el rlp
+           tprocesos.addRow(objectprocesos);// adiciona a la tabla 
+           pivote=posi+1;// crea el nuevo pivote
       }catch(Exception e){
           // retrocede el ide del programa en 1  pues el programa que lo ocupava no se cargo
           programa--;
@@ -1411,8 +1408,11 @@ else
       
       int limite= (int) tabla2.getValueAt(ultimaf-1, 5);
       
+      
+      
       // ciclo encargado de recorrer todas las instrucciones en la memoria
-      for (int i = inicio+1; i < limite; i++) {
+      for (int i = inicio+1; i <= limite; i++) {
+        
           // variables capturadoras de cada fila de la tabla de memoria
           String pos_memoria=  (String) modelo.getValueAt(i, 0).toString();
           String programaa=  (String) modelo.getValueAt(i, 1).toString();
@@ -1420,12 +1420,12 @@ else
           String argumento=  (String) modelo.getValueAt(i, 3).toString();
           String valor=  (String) modelo.getValueAt(i, 4).toString();
          
-          
           macumulador.setText(modelo.getValueAt(0, 4).toString());
           mpos_mem.setText(pos_memoria);
           minst.setText(argumento);
           mvalor.setText(valor);
-           switch (instruccion) {
+       
+          switch (instruccion) {
                         case "cargue":
                             cargue( programaa, valor);
                             break;
@@ -1508,13 +1508,10 @@ else
                              modelo.setValueAt(0, 0, 4);
                             
                             break;
-                            
-                        
                          
-                        
-           }
+           } 
           
-      }
+      } 
       
       
   }
@@ -1543,6 +1540,9 @@ else
           mpos_mem.setText(pos_memoria);
           minst.setText(argumento);
           mvalor.setText(valor);
+          
+            
+          
            switch (instruccion) {
                         case "cargue":
                             cargue( programaa, valor);
@@ -2322,20 +2322,22 @@ else
 
     private void acercadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acercadeActionPerformed
         // TODO add your handling code here
-        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.1.0.0\n" +
+        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.2.9.2\n" +
                 "Actualizaciones: en proceso...\n" +
                 "Java: 1.7.0_51; Java HotSpot(TM) 64-Bit Server VM 24.51-b03\n" +
                 "Runtime: Java(TM) SE Runtime Environment 1.7.0_51-b13\n" +
                 "System recomendado: Windows 7 y posterior\n" +
                 "creado por :YEISON AGUIRRE OSORIO -- NAUFRAGO\n" +
-                "UNIVERSIDAD DE COLOMBIA - SEDE MANIZALES\n"
-                + "fecha creacion:febrero 2016\n\n"
+                "UNIVERSIDAD NACIONAL DE COLOMBIA - SEDE MANIZALES\n"
+                + "fecha inicio creacion:febrero 2016\n\n"
                 + "simulador de OS encargado de leer instrucciones  de un archivo con \n"
                 + "extencion .CH en este estan los pasos y valores iniciales que el \n"
                 + "simulador debe interpretar y ejecutar, lo puede hacer de modo recorrido o \n"
                 + "paso a paso, durante la ejecucion se ve el mapa de memoria y que hay \n"
-                + "almacenado en ella ademas de el cuador de procesos activos y variables declaradas,\n"
-                + "los resultados del proceso pueden visualizarcen en monitor e impresion.", "ACERCA DE MI CH-MAQUINA.", 
+                + "almacenado en ella ademas de el cuadro de procesos activos y variables declaradas,\n"
+                + "los resultados del proceso pueden visualizarcen en monitor e impresion.\n\n"
+                + "© feb2016 - mar2016 CH-MAQUINA All rights reserved.", "ACERCA DE MI CH-MAQUINA."
+                       , 
         JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
     }//GEN-LAST:event_acercadeActionPerformed
 

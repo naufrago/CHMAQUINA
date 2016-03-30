@@ -2324,7 +2324,7 @@ else
 
     private void acercadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acercadeActionPerformed
         // TODO add your handling code here
-        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.2.9.2\n" +
+        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.2.9.3\n" +
                 "Actualizaciones: en proceso...\n" +
                 "Java: 1.7.0_51; Java HotSpot(TM) 64-Bit Server VM 24.51-b03\n" +
                 "Runtime: Java(TM) SE Runtime Environment 1.7.0_51-b13\n" +

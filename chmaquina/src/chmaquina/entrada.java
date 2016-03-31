@@ -585,13 +585,17 @@ else
                         case "nueva":
                             
                             if (tk.countTokens()>1 && tk.countTokens()<4) {
+                                
                                inicialvariables++;
                                 System.out.println("cantidad de tokens "+tk.countTokens());
                             // hace el segundo token de la linea
                             variablenueva= (tk.nextToken());
+                                
                             tipo=(tk.nextToken());
+                            System.out.println("tipo  "+tipo);
+                                
                                 if (tk.countTokens()<1) {
-                                    if ("c".equals(variablenueva) || "C".equals(variablenueva)  ) {
+                                    if ("c".equals(tipo) || "C".equals(tipo)  ) {
                                         valor=" ";
                                     }else{
                                         valor="0";
@@ -632,6 +636,8 @@ else
                                 default:
                                     errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
                                                     "parece error en el tipo de variable";
+                                    System.out.println("entro");
+                                    throw new Exception("Invalid entry");
                                     
                                     
                             }

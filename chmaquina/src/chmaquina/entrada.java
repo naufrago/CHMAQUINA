@@ -634,8 +634,9 @@ else
                                     tipo="CADENA";
                                     break;
                                 default:
-                                    errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
-                                                    "parece error en el tipo de variable";
+                                    errores= errores + "*parece error en el argumento tipo de variable en NUEVA\n"
+                                            + "debe ser '(i)' para enteros '(r)' para reales\n"
+                                            + "o '(c)' para caracteres";
                                     System.out.println("entro");
                                     throw new Exception("Invalid entry");
                                     
@@ -982,8 +983,11 @@ else
                 // borra lo que se halla subido a la memoria si por casulaidad salta un error
                 int tamaño=tabla2.getRowCount();
                 int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
-            for (int i = posisi; i < (int)memoria.getValue(); i++) {
+            for (int i = posisi+1; i < (int)memoria.getValue(); i++) {
                  modelo.setValueAt("", i, 1);
+                 modelo.setValueAt("", i, 2);
+                 modelo.setValueAt("", i, 3);
+                 modelo.setValueAt("", i, 4);
                  
             }
                 //Messaje que se muestra cuando hay error dentro del 'try'
@@ -992,7 +996,7 @@ else
             }else{
                 int tamaño=tabla2.getRowCount();
                 int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
-            for (int i = posisi; i < (int)memoria.getValue(); i++) {
+            for (int i = posisi+1; i < (int)memoria.getValue(); i++) {
                  modelo.setValueAt("", i, 1);
                  modelo.setValueAt("", i, 2);
                  modelo.setValueAt("", i, 3);
@@ -1432,7 +1436,7 @@ else
           mpos_mem.setText(pos_memoria);
           minst.setText(argumento);
           mvalor.setText(valor);
-       
+
           switch (instruccion) {
                         case "cargue":
                             cargue( programaa, valor);
@@ -1648,6 +1652,8 @@ else
             }
      }
    }
+  
+ 
   
   
     /**

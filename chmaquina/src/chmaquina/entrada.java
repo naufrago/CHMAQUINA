@@ -47,6 +47,7 @@ public class entrada extends JFrame {
     public static ArrayList<String> nvariables;
     public static ArrayList<Object[]> var;
     public static ArrayList<Object[]> etiq;
+    public static ArrayList<String[]> resultados;
     
     int pivote=0;
     int rlp;
@@ -75,6 +76,7 @@ public class entrada extends JFrame {
         pasoapaso.setVisible(false);
         IMP.setEnabled(false);
         EJEC.setEnabled(false);
+        resultados=new ArrayList();
         
         
         //fundamento encargado de la imagen de fondo del ch-maquina
@@ -1421,9 +1423,40 @@ else
                String valor=    (String) tvariables.getValueAt(filas, 4).toString();
                // hace la extraccion de una parte del   acumulador con el valor de  la variable
                resultado = valor;
-               String muestra=monitor.getText();
+               int bandera=0;
+               String[] dato = new String[3];
+               if (resultados.size()==0) {
+                    dato[0]=programa;
+                    dato[1]="RESULTADO DEL PROGRAMA "+ programa+".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
+                    dato[2]="";
+                    resultados.add(dato);
+                    bandera=1;
+               }else{
+                   int r=0;
+                   while(r<resultados.size()){
+                       if (programa==resultados.get(r)[0]) {
+                            dato[0]=programa;
+                            dato[1]=resultados.get(r)[1]+"RESULTADO DEL PROGRAMA "+ programa+".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
+                            dato[2]="";
+                            resultados.set(r, dato);
+                            bandera=1;
+                       }
+                       r++;
+                   }
+                   if (bandera==0) {
+                        dato[0]=programa;
+                        dato[1]="RESULTADO DEL PROGRAMA "+ programa+".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
+                        dato[2]="";
+                        resultados.add(dato);
+                        bandera=1;
+                   }
+                   
+               }
+                
+               
+               /*String muestra=monitor.getText();
                muestra=muestra+"RESULTADO DEL PROGRAMA "+ programa+".ch\nMOSTRANDO VALOR DE LA VARIABLE "+variable+" = "+resultado+"\n\n";
-               monitor.setText(muestra);
+               monitor.setText(muestra);*/
                
                 break;
            }
@@ -1433,7 +1466,7 @@ else
   
   //funcion   mostrar en el impresora los primeros caracteres del acumulador deacuerdo con el valor de una variable
   public void imprimir(String programa, String variable){
-      String resultado="";
+      /*String resultado="";
       int filas=0;
       int tamaño=tvariables.getRowCount();
        // recorre la tabla de variable en busca de la condicion
@@ -1455,7 +1488,7 @@ else
                 break;
            }
            filas++;
-       }
+       }*/
       
   }
   
@@ -1695,6 +1728,13 @@ else
        }else
         {
           ejecutar();
+          String muestra=monitor.getText();
+            for (int j = 0; j < resultados.size(); j++) {
+                muestra=muestra+resultados.get(j)[1];
+            }
+          
+            monitor.setText(muestra);
+            impresora.setText(muestra);
           i=limite;
             }
      }
@@ -1730,10 +1770,113 @@ else
             case "SJF EXPROPIATIVO":
                 pasoapaso();
                 break;
+                
+            case "PRIORIDAD":
+                pasoapaso();
+                break;
 
 
         }
     }
+  
+  public void Quicksort(int p, int r){
+        
+         int q;
+            if(p<r){
+               q=partition(p,r); // hace el llamado para obtener el pivote
+               Quicksort( p, q-1);// hace el llamado recurcivo con inicio p y fin donde esta el pivote menos 1
+               Quicksort( p+1, r);// hace el llamado recurcivo con inicio en donde esta el pivote mas 1 y fin el tamaño del vector
+            }
+    }
+  
+  public  int  partition( int p, int r){
+     
+     float pivote=Float.parseFloat(resultados.get(p)[2]); // asigna al pivote  el valor que este en el inicio dado por p
+     int i=p, j=r;
+     String[] aux;
+     
+     while(i<j){
+         while(Float.parseFloat(resultados.get(i)[2])<=pivote && i<r){// busca un numero mas grande o igual que el pivote 
+             i++;// contabiliza  hasta el lugar donde encontro el nunmero mas grande o igual
+         }
+         while(Float.parseFloat(resultados.get(j)[2])>pivote && j>p){//busca un numero mas pequeño que el pivote 
+             j--; // contabiliza  del fin hasta el inicio hasta el lugar donde encontro el nunmero mas pequeño
+         }
+         if(i<j){// si la condicion se cumple hace el intercambio d elas posiciones comensando a ordenar el vector pasa el 
+             //mas pequeño a la posicion i, y el mas grande a la posicion j
+             aux=resultados.get(i);
+             resultados.set(i, resultados.get(j));
+             resultados.set(j, aux);
+         }
+         
+     }
+     //  hace el intercambio de las posiciones comensando a ordenar el vector pasa el 
+     //mas pequeño a la posicion p, y el mas grande a la posicion j
+     aux=resultados.get(p);
+     resultados.set(p, resultados.get(j));
+     resultados.set(j, aux);
+     
+    return j;// retorna  elvalor de j y este sera el nuevo pivote o punto medio 
+ }
+  
+  private void QuicksortDEC(int inicio, int fin){
+        
+        if (inicio+1 == fin){
+            float salario1 = Float.parseFloat(resultados.get(inicio)[2]);
+            float salario2 = Float.parseFloat(resultados.get(fin)[2]);
+            if(salario1 < salario2){
+                resultados.add(inicio, resultados.remove(fin));
+            }
+            
+        }else if(inicio<fin){
+            
+            float pivote = Float.parseFloat(resultados.get(inicio)[2]);
+            
+            int posicionpivote = posPivote(inicio, fin, pivote);
+            
+            if (posicionpivote>0){
+                resultados.add(inicio+posicionpivote, resultados.remove(inicio));
+            }
+            
+            int posMayores=inicio+posicionpivote+1;
+            boolean encontroMayor = false;
+            
+            //pasar los mayores a la inicio y los menores al final
+            for (int i=inicio; i<inicio+posicionpivote; i++){
+                if(Float.parseFloat(resultados.get(i)[2])<pivote){
+                    do{
+                        if(Float.parseFloat(resultados.get(posMayores)[2])>pivote){
+                            resultados.add(i, resultados.remove(posMayores));
+                            resultados.add(posMayores, resultados.remove(i+1));
+                            
+                            encontroMayor= true;
+                        }else{
+                            
+                        }posMayores++;
+                    }while(!encontroMayor); //el simboloe ! es para negar si es true se vuelve false y vseversa
+                }
+            }
+            
+            QuicksortDEC(inicio, inicio+posicionpivote-1);
+            QuicksortDEC(inicio+posicionpivote+1, fin);
+            
+        }
+    }
+  
+  private int posPivote(int inicio, int fin, float pivote){
+        int contador = 0;
+        
+        //inicio+1 para no contar el pivote
+        for (int i= inicio+1; i<=fin; i++){
+            if(pivote < Float.parseFloat(resultados.get(i)[2])){
+                contador++;
+            }
+        }
+        
+        return contador;
+    }
+  
+  
   
   public void ejecutarfinal(){
       botoncargar.setVisible(false);
@@ -1742,7 +1885,9 @@ else
         JOptionPane.showOptionDialog(this, "CH-MAQUINA EJECUTARA EL PLANIFICADOR DE PROCESOS "+ proce+"\n"
                         , "PLANIFICADOR DE  CH-MAQUINA.", 
                 JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
-              
+        String muestra=monitor.getText();
+        
+        
         switch (proce){
             case "ROUND-ROBIN":
                 // carga en el sistema la prioridad que tendra el programa
@@ -1755,19 +1900,92 @@ else
                        CUANTUM = (int) spinner.getValue();
                    }
                 ejecutar();
+                for (int i = 0; i < resultados.size(); i++) {
+                    int RLP1 = (int)tabla2.getValueAt(i, 5);
+                    int RLP2 = (int)tabla2.getValueAt(i+1, 5);
+                    float valor= (RLP2-RLP1)/CUANTUM;
+                    String []dato=new String[3];
+                    dato[0]=resultados.get(i)[0];
+                    dato[1]=resultados.get(i)[1];
+                    dato[2]=String.valueOf(valor );
+                    
+                    resultados.set(i, dato);
+                    
+                    
+                }
+                
+                int inicio = 0;
+                int fin = resultados.size()-1;
+                Quicksort(inicio, fin);
+                
                 break;
+                
             case "FCFS":
                 ejecutar();
+                
                 break;
             case "SJF/SPN NO EXPROPIATIVO":
                 ejecutar();
+                for (int i = 0; i < resultados.size(); i++) {
+                    int RLP1 = (int)tabla2.getValueAt(i, 5);
+                    int RLP2 = (int)tabla2.getValueAt(i+1, 5);
+                    float valor= (RLP2-RLP1);
+                    String []dato=new String[3];
+                    dato[0]=resultados.get(i)[0];
+                    dato[1]=resultados.get(i)[1];
+                    dato[2]=String.valueOf(valor );
+                    
+                    resultados.set(i, dato);
+                    
+                }
+                int ini=1,  finn=resultados.size()-1;
+                Quicksort(ini, finn);
+                
                 break;
             case "SJF EXPROPIATIVO":
                 ejecutar();
+                for (int i = 0; i < resultados.size(); i++) {
+                    int RLP1 = (int)tabla2.getValueAt(i, 5);
+                    int RLP2 = (int)tabla2.getValueAt(i+1, 5);
+                    float tiempo = (float)tabla2.getValueAt(i+1, 7);
+                    float rafaga= (RLP2-RLP1);
+                    float valor= tiempo+rafaga;
+                    String []dato=new String[3];
+                    dato[0]=resultados.get(i)[0];
+                    dato[1]=resultados.get(i)[1];
+                    dato[2]=String.valueOf(valor );
+                    
+                    resultados.set(i, dato);
+                    
+                }
+                
+                int inS=0,  finN=resultados.size()-1;
+                Quicksort(inS, finN);
+                break;
+                
+            case "PRIORIDAD":
+                ejecutar();
+                for (int i = 0; i < resultados.size(); i++) {
+                    int PRI = (int)tabla2.getValueAt(i+1, 6);
+                    String []dato=new String[3];
+                    dato[0]=resultados.get(i)[0];
+                    dato[1]=resultados.get(i)[1];
+                    dato[2]=String.valueOf(PRI );
+                    
+                    resultados.set(i, dato);
+                    
+                }
+                int iniS=1,  finnN=resultados.size()-1;
+                QuicksortDEC(iniS, finnN);
                 break;
 
 
         }
+        for (int i = 0; i <resultados.size(); i++) {
+                    muestra=muestra+resultados.get(i)[1];
+                }
+        monitor.setText(muestra);
+        impresora.setText(muestra);
   }
   
   
@@ -2049,7 +2267,7 @@ else
             }
         });
 
-        procesos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "ROUND-ROBIN", "FCFS", "SJF/SPN NO EXPROPIATIVO", "SJF EXPROPIATIVO" }));
+        procesos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "ROUND-ROBIN", "FCFS", "SJF/SPN NO EXPROPIATIVO", "SJF EXPROPIATIVO", "PRIORIDAD" }));
         procesos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 procesosActionPerformed(evt);
@@ -2477,7 +2695,7 @@ else
 
     private void acercadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acercadeActionPerformed
         // TODO add your handling code here
-        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.3.0.1\n" +
+        JOptionPane.showOptionDialog(this, "Product Version: MI CH-MAQUINA   V.3.0.2\n" +
                 "Actualizaciones: en proceso...\n" +
                 "Java: 1.7.0_51; Java HotSpot(TM) 64-Bit Server VM 24.51-b03\n" +
                 "Runtime: Java(TM) SE Runtime Environment 1.7.0_51-b13\n" +

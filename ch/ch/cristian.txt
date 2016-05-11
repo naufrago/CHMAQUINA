@@ -1,0 +1,413 @@
+for (int i=0; i<lNumeroLineas; i++){
+                //Se usa 'StringTokenizer' para tomar toda la linea  examinada
+                posi++; // aumenta en uno  las posiciones d ememoria para ocupar
+                String linea=leer2.readLine().trim();
+                
+                lexa++;
+                StringTokenizer tk = new StringTokenizer(linea);
+            
+                // condiciona la linea para saber si esta vacia
+                if (linea.length()>0) {
+                 operacion= (tk.nextToken());
+                
+                }else{
+                    // en caso tal que la linea este vacia  
+                    operacion=" ";
+                
+                }
+                // evalua por casos  cada linea y hace los tokens  correspondientes
+                 switch (operacion) {
+                        case "cargue":
+                            if (tk.countTokens()==1) {
+                                 // hace el segundo token de la linea
+                            variablecargue= (tk.nextToken());
+                                                        
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablecargue, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                            }else{
+                                errores=errores+"debe tener dos argumentos en esta linea";
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "almacene":
+                            // hace el segundo token de la linea
+                            variablealmacene= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablealmacene, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                            
+                        case "vaya":
+                            // hace el segundo token de la linea
+                            etiquetaini= (tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(etiquetaini, posi, 4);// guarda en la tabla el valor de memoria
+                            
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;
+                        
+                        case "vayasi":
+                            // hace el segundo token de la linea
+                            etiquetaini= (tk.nextToken());
+                            etiquetafin=(tk.nextToken());
+                            //agrega en el array list de instrucciones
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(etiquetaini+";"+etiquetafin, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            instrucciones.add(pre + " " + linea);
+                            break;   
+                            
+                        case "nueva":
+                            if (tk.countTokens()>=3 || tk.countTokens()==4) {
+                               inicialvariables++;
+                            // hace el segundo token de la linea
+                            variablenueva= (tk.nextToken());
+                            tipo=(tk.nextToken());
+                                if (tk.countTokens()==3) {
+                                    if ("c".equals(variablenueva) || "C".equals(variablenueva)  ) {
+                                        valor=" ";
+                                    }else{
+                                        valor="0";
+                                    }
+                                }else{
+                                     valor= (tk.nextToken());
+                                }
+                             
+                           
+                            //agrega en el array list de instrucciones
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(valor, posi, 4);// guarda en la tabla el valor de memoria
+                            
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            
+                            Object nuevo[]=new Object[5];
+                            nuevo[0]="";
+                            nuevo[1]=pre;
+                            nuevo[3]=variablenueva;
+                            switch (tipo){
+                                case "i":
+                                case "I":
+                                    tipo="ENTERO";
+                                    break;
+                                
+                                case "r":
+                                case "R":
+                                    tipo="REAL";
+                                    break;
+                                            
+                                case "c":
+                                case "C":
+                                    tipo="CADENA";
+                                    break;
+                                default:
+                                    errores= errores + "* hay un error de sintaxis en la linea "+lNumeroLineas+"\n"+
+                                                    "parece error en el tipo de variable";
+                                    
+                                    
+                            }
+                            nuevo[2]=tipo;
+                            nuevo[4]=valor;
+                            var.add(nuevo); // almacena en laun array list para luego pasarlo a la  tabla variables 
+                            
+                            nvariables.add(variablenueva) ;
+                            nvariables.add(valor) ;
+                            break; 
+                            }else{
+                                throw new Exception("Invalid entry");
+                            }
+                            
+                        
+                        case "etiqueta":
+                             // hace el segundo token de la linea
+                            nombreetiqueta =(tk.nextToken());
+                            numerolinea=(tk.nextToken());
+                            
+                            
+                            inicialetiquetas++;
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(nombreetiqueta, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            
+                            Object netiqueta[]=new Object[4];
+                            
+                            // carga de nuevo el documento para recorrerlo de nuevo y encontrar la linea a etiquetar
+                            FileReader file3 = new FileReader(url);
+                            BufferedReader leer3 = new BufferedReader(file3);
+                            String eti="";
+                            int j;
+                            // recorre el documento hasta la linea requerida 
+                            for ( j = 0; j < Integer.parseInt(numerolinea); j++) {
+                                eti=leer3.readLine();
+                            }
+                            
+                            netiqueta[0]=pivote+j-1;//posicion en memoria
+                            netiqueta[1]=pre; //programa al q pertenece
+                            netiqueta[2]=nombreetiqueta;// nombre etiqueta mas
+                            netiqueta[3]=eti; // la linea renombrada
+                            etiq.add(netiqueta); // adiciona el arreglo a la tabla etiquetas
+                            break;
+                        
+                        case "lea":
+                            variablelea=(tk.nextToken());
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablelea, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                        
+                        case "sume":
+                            variablesume=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablesume, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "reste":
+                           variablereste=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablereste, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "multiplique":
+                            variablemultiplique=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemultiplique, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                         
+                        case "divida":
+                            variabledivida=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variabledivida, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "potencia":
+                            variablepotencia=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablepotencia, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "modulo":
+                            variablemodulo=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemodulo, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "concatene":
+                             variableconcatene=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableconcatene, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "elimine":
+                            variableelimine=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableelimine, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                        
+                        case "extraiga":
+                             variableextraiga=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableextraiga, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "muestre":
+                            variablemuestre=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variablemuestre, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "imprima":
+                             variableimprimir=(tk.nextToken());
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(variableimprimir, posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "retorne":
+                             
+                             //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt(operacion, posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                        case "//":
+                           //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("COMENTARIO", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                        
+                        case " ":
+                            //agrega la linea completa al mapa de memoria
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("LINEA VACIA", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(linea, posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt("----", posi, 4);// guarda en la tabla el valor de memoria
+                            memoriaprin[posi]=linea; // guarda en el vector principal de memoria
+                            break;
+                            
+                          default:
+                              // borra el ultimo programa cargado de la memoria 
+                              for (int h = inicialmemoria; h < (int)memoria.getValue(); h++) {
+                                  modelo.setValueAt("", h, 1);
+                                  memoriaprin[h]="";
+                              }
+                              // hace el llamado a la exeption si algo esta mal en el archivo
+                              throw new Exception("Invalid entry");
+                  }
+             }
+            // carga si no hay problema las variables a la tabla variables
+            for (int b = 0; b < var.size(); b++) {
+                
+                tvariables.addRow(var.get(b));
+                
+            }
+            
+            // ciclo que le asigna el valor de la posicion de memoria donde esta
+            //hubicado  y lo muetra en tabla de variables
+            int tempoposi=posi;
+            // toma el valor  de las variables del nuevo archivo mas las filas ocupadas de la tabla
+            int lim=(nvariables.size()/2)+q;
+            for ( int r=q; r < lim; r++) {
+                tempoposi++;
+                // le da el valor de la posicion  de la variable en la memoria a  la tabala d evariables
+                tvariables.setValueAt(tempoposi, r, 0);
+            }
+           //concatena el prefijo con la instruccion en el mapa de memoria las variables defidas
+            for (int a = 0; a < nvariables.size(); a+=2) {
+                posi++;
+                // agrega toda la instruccion a la memoria 
+               
+                            modelo.setValueAt(pre, posi, 1);// guarda en la tabla  de memoria el numero del programa
+                            modelo.setValueAt("VARIABLE", posi, 2);// guarda en la tabla  la instruccion del programa
+                            modelo.setValueAt(nvariables.get(a), posi, 3);// guarda en la tabla el argumento de memoria
+                            modelo.setValueAt(nvariables.get(a+1), posi, 4);// guarda en la tabla el valor de memoria
+                memoriaprin[posi]=nvariables.get(a); // guarda en el vector principal de memoria
+            }
+             for (int c = 0; c < etiq.size(); c++) {
+                tetiquetas.addRow(etiq.get(c));
+            }
+          
+       // se encarga de  crear el contenido de un programa en la tabla de procesos
+           Object []objectprocesos = new Object[6];
+           objectprocesos[0]=pre;// # instancias
+           objectprocesos[1]=nombre; // nombre del programa
+           objectprocesos[2]=lNumeroLineas; // numero  de lineas del programa
+           objectprocesos[3]=pivote; // rb
+           pivote=posi+1;// crea el nuevo pivote
+           objectprocesos[4]=posi; //registro limite de el programa
+           objectprocesos[5]=pivote ; // crea el rlp
+           tprocesos.addRow(objectprocesos);// adiciona a la tabla 
+           
+      }catch(Exception e){
+          // retrocede el ide del programa en 1  pues el programa que lo ocupava no se cargo
+          programa--;
+           // recupera el valor de la memoria restante 
+          int memoriarestante=((int)memoria.getValue()- pivote);
+          // condicion que  define que tipo de error surgio en el proceso
+            if (lNumeroLineas>memoriarestante) {
+                // borra lo que se halla subido a la memoria si por casulaidad salta un error
+                int tamaño=tabla2.getRowCount();
+                int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
+            for (int i = posisi; i < (int)memoria.getValue(); i++) {
+                 modelo.setValueAt("", i, 1);
+                 
+            }
+                //Messaje que se muestra cuando hay error dentro del 'try'
+            JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
+                   +"pues  el tamaño de este es superior a la memoria restante");
+            }else{
+                int tamaño=tabla2.getRowCount();
+                int posisi=(int) tabla2.getValueAt(tamaño-1, 5);
+            for (int i = posisi; i < (int)memoria.getValue(); i++) {
+                 modelo.setValueAt("", i, 1);
+                 modelo.setValueAt("", i, 2);
+                 modelo.setValueAt("", i, 3);
+                 modelo.setValueAt("", i, 4);
+            
+            
+            }
+                //Messaje que se muestra cuando hay error dentro del 'try'
+            JOptionPane.showMessageDialog(null, "Se generó un error al cargar el archivo \n"
+                    + "en la linea "+lexa+" es posible que uno de los datos del archivo \nno coincida con el formato");
+            }
+  
+      }
+         
+  }

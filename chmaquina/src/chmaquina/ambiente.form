@@ -237,9 +237,6 @@
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="imagen">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="editor"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JToggleButton" name="jToggleButton6">
       <Properties>

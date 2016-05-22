@@ -664,8 +664,6 @@ public class ambiente extends javax.swing.JFrame {
             }
         });
 
-        imagen.setText("editor");
-
         jToggleButton6.setText("?");
         jToggleButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -845,7 +843,26 @@ public class ambiente extends javax.swing.JFrame {
 
     private void jToggleButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton6ActionPerformed
         // TODO add your handling code here:
-        JOptionPane.showOptionDialog(this, "ESTE BOTON SE ENCARGA DE VERIFICAR LA SINTAXIS DEL CONTENIDO DEL EDITOR \n", "INFORMACION",
+        JOptionPane.showOptionDialog(this, "ESTE BOTON SE ENCARGA DE VERIFICAR LA SINTAXIS DEL CONTENIDO DEL EDITOR \n"
+                                         + "cargue\n"
+                + "almacene\n"
+                + "vaya\n"
+                + "vayasi\n"
+                + "nueva\n"
+                + "etiqueta\n"
+                + "lea\n"
+                + "sume\n"
+                + "reste\n"
+                + "multiplique\n"
+                + "divida\n"
+                + "potencia\n"
+                + "modulo\n"
+                + "concatene\n"
+                + "eliminie\n"
+                + "extraiga\n"
+                + "muestre\n"
+                + "imprima\n"
+                + "retorne\n", "INFORMACION",
                            JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, new Object[]{" OK "},"OK");
     }//GEN-LAST:event_jToggleButton6ActionPerformed
 

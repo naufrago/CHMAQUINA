@@ -588,7 +588,9 @@ public class ambiente extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         panel.setColumns(20);
+        panel.setLineWrap(true);
         panel.setRows(5);
+        panel.setWrapStyleWord(true);
         jScrollPane1.setViewportView(panel);
 
         guardar.setText("GUARDAR");

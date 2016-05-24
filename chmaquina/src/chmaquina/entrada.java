@@ -2046,21 +2046,21 @@ else
         procesos = new javax.swing.JComboBox();
         jLabel10 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
-        EJEC = new javax.swing.JMenu();
-        encender3 = new javax.swing.JMenuItem();
-        encender4 = new javax.swing.JMenuItem();
-        jMenu7 = new javax.swing.JMenu();
-        documentacion = new javax.swing.JMenuItem();
-        manualt = new javax.swing.JMenuItem();
-        manualt1 = new javax.swing.JMenuItem();
-        acercade = new javax.swing.JMenuItem();
-        IMP = new javax.swing.JMenu();
-        IMPRI = new javax.swing.JMenuItem();
         archivo = new javax.swing.JMenu();
         encender2 = new javax.swing.JMenuItem();
         cargarprograma = new javax.swing.JMenuItem();
         apagarmaquina2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
+        EJEC = new javax.swing.JMenu();
+        encender3 = new javax.swing.JMenuItem();
+        encender4 = new javax.swing.JMenuItem();
+        IMP = new javax.swing.JMenu();
+        IMPRI = new javax.swing.JMenuItem();
+        jMenu7 = new javax.swing.JMenu();
+        documentacion = new javax.swing.JMenuItem();
+        manualt = new javax.swing.JMenuItem();
+        manualt1 = new javax.swing.JMenuItem();
+        acercade = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -2283,6 +2283,51 @@ else
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("PROCESO DE PLANIFICACION");
 
+        archivo.setText("ARCHIVO");
+        archivo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                archivoMouseClicked(evt);
+            }
+        });
+
+        encender2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.CTRL_MASK));
+        encender2.setText("ENCENDER MAQUINA");
+        encender2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                encender2ActionPerformed(evt);
+            }
+        });
+        archivo.add(encender2);
+
+        cargarprograma.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        cargarprograma.setText("CARGAR PROGRAMA");
+        cargarprograma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cargarprogramaActionPerformed(evt);
+            }
+        });
+        archivo.add(cargarprograma);
+
+        apagarmaquina2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        apagarmaquina2.setText("APAGAR MAQUINA");
+        apagarmaquina2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                apagarmaquina2ActionPerformed(evt);
+            }
+        });
+        archivo.add(apagarmaquina2);
+
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        jMenuItem3.setText("CERRAR");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        archivo.add(jMenuItem3);
+
+        jMenuBar1.add(archivo);
+
         EJEC.setText("EJECUTAR");
 
         encender3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -2304,6 +2349,24 @@ else
         EJEC.add(encender4);
 
         jMenuBar1.add(EJEC);
+
+        IMP.setText("IMPRIMIR");
+        IMP.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                IMPMouseClicked(evt);
+            }
+        });
+
+        IMPRI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        IMPRI.setText("IMPRIMIR ");
+        IMPRI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IMPRIActionPerformed(evt);
+            }
+        });
+        IMP.add(IMPRI);
+
+        jMenuBar1.add(IMP);
 
         jMenu7.setText("AYUDA");
         jMenu7.addActionListener(new java.awt.event.ActionListener() {
@@ -2349,69 +2412,6 @@ else
         jMenu7.add(acercade);
 
         jMenuBar1.add(jMenu7);
-
-        IMP.setText("IMPRIMIR");
-        IMP.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                IMPMouseClicked(evt);
-            }
-        });
-
-        IMPRI.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
-        IMPRI.setText("IMPRIMIR ");
-        IMPRI.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IMPRIActionPerformed(evt);
-            }
-        });
-        IMP.add(IMPRI);
-
-        jMenuBar1.add(IMP);
-
-        archivo.setText("ARCHIVO");
-        archivo.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                archivoMouseClicked(evt);
-            }
-        });
-
-        encender2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.CTRL_MASK));
-        encender2.setText("ENCENDER MAQUINA");
-        encender2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                encender2ActionPerformed(evt);
-            }
-        });
-        archivo.add(encender2);
-
-        cargarprograma.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
-        cargarprograma.setText("CARGAR PROGRAMA");
-        cargarprograma.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cargarprogramaActionPerformed(evt);
-            }
-        });
-        archivo.add(cargarprograma);
-
-        apagarmaquina2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
-        apagarmaquina2.setText("APAGAR MAQUINA");
-        apagarmaquina2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                apagarmaquina2ActionPerformed(evt);
-            }
-        });
-        archivo.add(apagarmaquina2);
-
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
-        jMenuItem3.setText("CERRAR");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
-            }
-        });
-        archivo.add(jMenuItem3);
-
-        jMenuBar1.add(archivo);
 
         setJMenuBar(jMenuBar1);
 
